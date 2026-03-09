@@ -1,0 +1,639 @@
+{% extends 'nav.html' %}
+{% load static %}
+{% block content %}
+<div style="padding-top: var(--nav-height); min-height:100vh; background:var(--bg); display:flex;">
+
+    <!-- Sidebar -->
+    <div class="learn-sidebar" id="learnSidebar">
+        <div class="learn-sidebar-header">
+            <h3 id="sidebar-course-name">Loading...</h3>
+            <!-- Progress Bar in Sidebar -->
+            <div class="sidebar-progress-wrap">
+                <div class="sidebar-progress-bar" id="sidebarProgressBar" style="width:0%"></div>
+            </div>
+            <div class="sidebar-progress-text">
+                <span id="progressText">0% Complete</span>
+                <button class="cert-btn" id="certBtn" onclick="showCertificate()" style="display:none">
+                    <i class="bi bi-award-fill"></i> Certificate
+                </button>
+            </div>
+        </div>
+        <div id="sidebar-chapters"></div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="learn-main" id="learnMain">
+        <div class="learn-topbar">
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="bi bi-list"></i>
+            </button>
+            <span id="current-lesson-title">Select a lesson</span>
+            <div style="margin-left:auto;display:flex;align-items:center;gap:0.75rem;">
+                <span id="topProgressText" style="font-size:0.8rem;color:var(--text-muted);font-weight:600;"></span>
+            </div>
+        </div>
+
+        <div class="learn-content-area" id="lessonContent">
+            <div class="learn-welcome">
+                <div style="font-size:3rem;margin-bottom:1rem;">📚</div>
+                <h2>Welcome to the Course!</h2>
+                <p>Select a lesson from the sidebar to start learning.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quiz Modal -->
+<div id="quizModal" class="quiz-modal" onclick="handleModalClick(event)">
+    <div class="quiz-modal-inner" id="quizModalInner">
+        <button class="quiz-modal-close" onclick="closeQuiz()"><i class="bi bi-x-lg"></i></button>
+        <div id="quizContent"></div>
+    </div>
+</div>
+
+<!-- Certificate Modal -->
+<div id="certModal" class="quiz-modal" onclick="handleCertModalClick(event)">
+    <div class="quiz-modal-inner" style="max-width:720px;padding:0;overflow:hidden;">
+        <button class="quiz-modal-close" onclick="closeCertificate()"><i class="bi bi-x-lg"></i></button>
+        <div id="certContent"></div>
+    </div>
+</div>
+
+<style>
+/* Sidebar Progress */
+.sidebar-progress-wrap {
+    height: 4px; background: rgba(255,255,255,0.1);
+    border-radius: 999px; margin: 0.75rem 0 0.4rem;
+    overflow: hidden;
+}
+.sidebar-progress-bar {
+    height: 100%; background: linear-gradient(90deg, #6366f1, #10b981);
+    border-radius: 999px; transition: width 0.5s ease;
+}
+.sidebar-progress-text {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 0.25rem;
+}
+#progressText { font-size: 0.72rem; color: rgba(255,255,255,0.5); font-weight: 600; }
+.cert-btn {
+    display: flex; align-items: center; gap: 0.3rem;
+    background: linear-gradient(135deg, #f59e0b, #f97316);
+    color: white; border: none; border-radius: 999px;
+    font-size: 0.7rem; font-weight: 700; padding: 0.25rem 0.7rem;
+    cursor: pointer; transition: all 0.2s; font-family: var(--font-main);
+    animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,0.4)} 50%{box-shadow:0 0 0 6px rgba(245,158,11,0)} }
+
+.learn-sidebar { width: 300px; min-width: 300px; background: var(--dark); height: calc(100vh - var(--nav-height)); position: sticky; top: var(--nav-height); overflow-y: auto; transition: all 0.3s; border-right: 1px solid rgba(255,255,255,0.06); }
+.learn-sidebar-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.learn-sidebar-header h3 { font-family: var(--font-display); color: white; font-size: 0.95rem; font-weight: 700; margin: 0 0 0.5rem; letter-spacing: -0.3px; }
+.chapter-item { border-bottom: 1px solid rgba(255,255,255,0.05); }
+.chapter-title { padding: 0.85rem 1.5rem; color: rgba(255,255,255,0.5); font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.chapter-title i { font-size: 0.7rem; transition: transform 0.2s; }
+.chapter-title.open i { transform: rotate(90deg); }
+.lesson-item { padding: 0.65rem 1.5rem 0.65rem 2.5rem; color: rgba(255,255,255,0.55); font-size: 0.82rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
+.lesson-item:hover { background: rgba(255,255,255,0.04); color: white; }
+.lesson-item.active { background: rgba(99,102,241,0.15); color: #a5b4fc; border-right: 3px solid #6366f1; }
+.lesson-item.done { color: rgba(255,255,255,0.35); }
+.lesson-item.done .lesson-check { color: #10b981; opacity: 1; }
+.lesson-check { font-size: 0.65rem; opacity: 0.3; margin-left: auto; flex-shrink: 0; }
+.quiz-btn { display: flex; align-items: center; gap: 0.5rem; width: calc(100% - 3rem); margin: 0.5rem 1.5rem 0.75rem; padding: 0.55rem 1rem; background: linear-gradient(135deg, #f59e0b, #ef4444); color: white; border: none; border-radius: 8px; font-size: 0.78rem; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: var(--font-main); }
+.quiz-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+.quiz-btn.passed { background: linear-gradient(135deg, #10b981, #059669); }
+
+.learn-main { flex: 1; overflow-y: auto; }
+.learn-topbar { padding: 1rem 2rem; background: white; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 1rem; position: sticky; top: 0; z-index: 10; }
+.sidebar-toggle { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 0.4rem 0.6rem; cursor: pointer; font-size: 1.1rem; color: var(--text); }
+#current-lesson-title { font-weight: 600; font-size: 0.9rem; color: var(--text); font-family: var(--font-display); }
+.learn-content-area { padding: 2.5rem; max-width: 860px; }
+.learn-welcome { text-align: center; padding: 4rem 2rem; color: var(--text-muted); }
+.learn-welcome h2 { font-family: var(--font-display); color: var(--dark); margin-bottom: 0.5rem; }
+.lesson-body h1,.lesson-body h2,.lesson-body h3 { font-family: var(--font-display); color: var(--dark); margin: 1.5rem 0 0.75rem; letter-spacing: -0.3px; }
+.lesson-body h1 { font-size: 1.8rem; border-bottom: 2px solid var(--border); padding-bottom: 0.5rem; }
+.lesson-body h2 { font-size: 1.3rem; }
+.lesson-body h3 { font-size: 1.05rem; color: var(--primary); }
+.lesson-body p { font-size: 0.95rem; line-height: 1.85; color: var(--text); margin-bottom: 1rem; }
+.lesson-body ul,.lesson-body ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+.lesson-body li { font-size: 0.92rem; line-height: 1.8; color: var(--text); margin-bottom: 0.25rem; }
+.code-block { background: #1e1e2e; border-radius: var(--radius-sm); padding: 1.25rem 1.5rem; margin: 1.25rem 0; position: relative; overflow-x: auto; }
+.code-block pre { margin: 0; color: #cdd6f4; font-family: 'Courier New', monospace; font-size: 0.88rem; line-height: 1.7; white-space: pre-wrap; }
+.code-label { font-size: 0.7rem; font-weight: 700; color: #6366f1; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.75rem; display: block; }
+.copy-btn { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.6); font-size: 0.75rem; padding: 0.25rem 0.6rem; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+.copy-btn:hover { background: rgba(99,102,241,0.3); color: white; }
+.lesson-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 3rem; padding-top: 1.5rem; border-top: 2px solid var(--border); }
+.lesson-nav-btn { display: flex; align-items: center; gap: 8px; background: white; border: 1.5px solid var(--border); color: var(--text); padding: 0.7rem 1.25rem; border-radius: var(--radius-sm); font-family: var(--font-main); font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+.lesson-nav-btn:hover { border-color: var(--primary); color: var(--primary); }
+.lesson-nav-btn.primary-btn { background: var(--gradient); color: white; border-color: transparent; box-shadow: 0 4px 14px rgba(99,102,241,0.3); }
+.lesson-nav-btn.primary-btn:hover { transform: translateY(-2px); color: white; }
+.mark-complete-btn { display: flex; align-items: center; gap: 6px; background: #f0fdf4; border: 1.5px solid #10b981; color: #065f46; padding: 0.7rem 1.25rem; border-radius: var(--radius-sm); font-family: var(--font-main); font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+.mark-complete-btn:hover { background: #10b981; color: white; }
+.mark-complete-btn.completed { background: #10b981; color: white; border-color: #10b981; cursor: default; }
+
+.no-access-box { text-align: center; padding: 4rem 2rem; }
+.no-access-box .lock-icon { width: 80px; height: 80px; background: var(--primary-light); color: var(--primary); border-radius: 50%; font-size: 2rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; }
+.pending-box { background: var(--accent-light); border: 1px solid rgba(245,158,11,0.3); border-radius: var(--radius); padding: 1.5rem; text-align: center; margin-top: 1rem; }
+
+/* QUIZ MODAL */
+.quiz-modal { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.75); backdrop-filter: blur(6px); align-items: center; justify-content: center; padding: 1rem; }
+.quiz-modal.active { display: flex; animation: fadeIn 0.25s ease; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.quiz-modal-inner { background: white; border-radius: 20px; width: 100%; max-width: 680px; max-height: 88vh; overflow-y: auto; padding: 2rem; position: relative; animation: slideUp 0.3s ease; }
+@keyframes slideUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+.quiz-modal-close { position: absolute; top: 1rem; right: 1rem; background: #f1f5f9; border: none; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; color: #64748b; transition: all 0.2s; z-index: 1; }
+.quiz-modal-close:hover { background: #fee2e2; color: #ef4444; }
+.quiz-header { text-align: center; margin-bottom: 2rem; padding-right: 2rem; }
+.quiz-header h2 { font-family: var(--font-display); font-size: 1.3rem; font-weight: 700; color: #0f172a; margin-bottom: 0.4rem; }
+.quiz-header p { color: #6b7280; font-size: 0.85rem; margin: 0; }
+.quiz-progress { background: #f1f5f9; border-radius: 999px; height: 6px; margin-bottom: 2rem; overflow: hidden; }
+.quiz-progress-bar { height: 100%; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 999px; transition: width 0.4s ease; }
+.quiz-question { margin-bottom: 2rem; }
+.quiz-q-text { font-weight: 700; font-size: 0.93rem; color: #1f2937; margin-bottom: 1rem; padding: 0.85rem 1rem; background: #f8fafc; border-radius: 10px; border-left: 4px solid #6366f1; line-height: 1.6; }
+.quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+.quiz-option { display: flex; align-items: center; gap: 0.65rem; padding: 0.7rem 1rem; border: 2px solid #e5e7eb; border-radius: 10px; cursor: pointer; font-size: 0.85rem; transition: all 0.18s; background: white; text-align: left; font-family: var(--font-main); }
+.quiz-option:hover { border-color: #6366f1; background: #eef2ff; }
+.quiz-option.selected { border-color: #6366f1; background: #eef2ff; color: #4338ca; font-weight: 600; }
+.quiz-option.correct { border-color: #10b981; background: #f0fdf4; color: #065f46; font-weight: 600; }
+.quiz-option.wrong { border-color: #ef4444; background: #fef2f2; color: #991b1b; font-weight: 600; }
+.quiz-opt-letter { width: 26px; height: 26px; border-radius: 50%; background: #e0e7ff; color: #4338ca; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 800; flex-shrink: 0; }
+.quiz-option.selected .quiz-opt-letter { background: #6366f1; color: white; }
+.quiz-option.correct .quiz-opt-letter { background: #10b981; color: white; }
+.quiz-option.wrong .quiz-opt-letter { background: #ef4444; color: white; }
+.quiz-submit-btn { width: 100%; padding: 0.9rem; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; border: none; border-radius: 12px; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all 0.2s; margin-top: 0.5rem; font-family: var(--font-main); box-shadow: 0 4px 14px rgba(99,102,241,0.35); }
+.quiz-submit-btn:hover { opacity: 0.92; transform: translateY(-2px); }
+.quiz-result { text-align: center; padding: 1rem 0 1.5rem; }
+.quiz-result-emoji { font-size: 3.5rem; margin-bottom: 0.75rem; }
+.quiz-result-score { font-family: var(--font-display); font-size: 3.8rem; font-weight: 800; line-height: 1; margin-bottom: 0.4rem; }
+.quiz-result.passed .quiz-result-score { color: #10b981; }
+.quiz-result.failed .quiz-result-score { color: #ef4444; }
+.quiz-result-msg { font-size: 1.1rem; font-weight: 700; color: #0f172a; margin-bottom: 0.4rem; }
+.quiz-result-sub { color: #6b7280; font-size: 0.85rem; margin-bottom: 1.5rem; }
+.quiz-result-btns { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+.quiz-close-btn { padding: 0.7rem 1.75rem; background: #f1f5f9; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 0.88rem; font-family: var(--font-main); transition: all 0.2s; }
+.quiz-close-btn:hover { background: #e2e8f0; }
+.quiz-retry-btn { padding: 0.7rem 1.75rem; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 0.88rem; font-family: var(--font-main); transition: all 0.2s; }
+.quiz-retry-btn:hover { opacity: 0.9; }
+.review-section { margin-top: 1.5rem; text-align: left; }
+.review-title { font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; color: #0f172a; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e5e7eb; }
+
+/* CERTIFICATE */
+.certificate-wrap {
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+    padding: 3rem 2.5rem; text-align: center; position: relative;
+    overflow: hidden;
+}
+.certificate-wrap::before {
+    content: '';
+    position: absolute; inset: 12px;
+    border: 2px solid rgba(255,255,255,0.1);
+    border-radius: 12px; pointer-events: none;
+}
+.cert-logo { font-size: 3rem; margin-bottom: 0.5rem; }
+.cert-label { font-size: 0.75rem; font-weight: 700; color: #a5b4fc; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 1rem; }
+.cert-title { font-family: var(--font-display); font-size: 2rem; font-weight: 800; color: white; margin-bottom: 0.5rem; }
+.cert-sub { color: rgba(255,255,255,0.5); font-size: 0.9rem; margin-bottom: 1.5rem; }
+.cert-name { font-family: var(--font-display); font-size: 2.2rem; font-weight: 700; background: linear-gradient(135deg, #fbbf24, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 0.5rem; }
+.cert-course-label { color: rgba(255,255,255,0.4); font-size: 0.85rem; margin-bottom: 0.3rem; }
+.cert-course { font-family: var(--font-display); font-size: 1.3rem; font-weight: 700; color: white; margin-bottom: 1.5rem; }
+.cert-divider { width: 80px; height: 3px; background: linear-gradient(90deg, #6366f1, #f59e0b); margin: 0 auto 1.5rem; border-radius: 999px; }
+.cert-meta { display: flex; justify-content: center; gap: 3rem; margin-bottom: 2rem; }
+.cert-meta-item { text-align: center; }
+.cert-meta-label { font-size: 0.7rem; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.2rem; }
+.cert-meta-value { font-size: 0.88rem; font-weight: 700; color: rgba(255,255,255,0.8); }
+.cert-actions { display: flex; gap: 0.75rem; justify-content: center; padding: 1.5rem 2.5rem; background: white; }
+.cert-download-btn { display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.75rem; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 0.88rem; font-family: var(--font-main); transition: all 0.2s; }
+.cert-download-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+.cert-close-btn2 { display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.75rem; background: #f1f5f9; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 0.88rem; font-family: var(--font-main); transition: all 0.2s; }
+
+/* Completion banner */
+.completion-banner {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white; padding: 1rem 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    border-radius: var(--radius); margin-bottom: 1.5rem;
+    animation: slideDown 0.5s ease;
+}
+@keyframes slideDown { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
+.completion-banner h3 { font-family: var(--font-display); font-size: 1rem; font-weight: 700; margin: 0 0 0.2rem; }
+.completion-banner p { font-size: 0.82rem; margin: 0; opacity: 0.85; }
+.view-cert-btn { display: flex; align-items: center; gap: 0.5rem; background: white; color: #065f46; border: none; border-radius: 8px; padding: 0.6rem 1.2rem; font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; white-space: nowrap; font-family: var(--font-main); }
+.view-cert-btn:hover { background: #f0fdf4; }
+
+@media(max-width:768px) {
+    .learn-sidebar { position:fixed; left:-300px; z-index:500; height:100vh; top:0; }
+    .learn-sidebar.open { left:0; }
+    .quiz-options { grid-template-columns: 1fr; }
+    .quiz-modal-inner { padding: 1.5rem; }
+    .cert-meta { gap: 1.5rem; }
+}
+</style>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const courseId = params.get('course_id');
+const token = localStorage.getItem('token');
+let allLessons = [];
+let currentLessonIndex = 0;
+let _quizData = null;
+let _quizAnswers = {};
+let completedLessons = new Set();
+let _certId = null;
+
+function getUsername() {
+    try {
+        const tok = localStorage.getItem('token');
+        if (!tok) return '';
+        return JSON.parse(atob(tok.split('.')[1])).username || '';
+    } catch(e) { return ''; }
+}
+
+window.onload = async function() {
+    if (!token) { window.location.href = "{% url 'login_page' %}"; return; }
+
+    const accessRes = await fetch('/check_access/', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: new URLSearchParams({ course_id: courseId })
+    });
+    const accessData = await accessRes.json();
+
+    const courseRes = await fetch(`/get_course/?course_id=${courseId}`);
+    const courseData = await courseRes.json();
+    document.getElementById('sidebar-course-name').textContent = courseData.course.course_name;
+
+    if (!accessData.has_access) { showNoAccess(accessData.status, courseId); return; }
+
+    const contentRes = await fetch(`/get_course_content/?course_id=${courseId}`);
+    const contentData = await contentRes.json();
+    renderSidebar(contentData.chapters);
+
+    // Load progress
+    loadProgress();
+};
+
+async function loadProgress() {
+    const uname = getUsername();
+    const res = await fetch(`/get_progress/?username=${uname}&course_id=${courseId}`);
+    const data = await res.json();
+    completedLessons = new Set(data.completed_lesson_ids);
+    _certId = data.certificate_id;
+    updateProgressUI(data.percentage);
+    updateLessonChecks();
+    if (data.certificate_id) {
+        document.getElementById('certBtn').style.display = 'flex';
+    }
+}
+
+function updateProgressUI(pct) {
+    document.getElementById('sidebarProgressBar').style.width = pct + '%';
+    document.getElementById('progressText').textContent = pct + '% Complete';
+    document.getElementById('topProgressText').textContent = pct + '% Complete';
+}
+
+function updateLessonChecks() {
+    allLessons.forEach((lesson, idx) => {
+        const el = document.getElementById(`lesson-item-${idx}`);
+        if (!el) return;
+        const check = el.querySelector('.lesson-check');
+        if (completedLessons.has(lesson.id)) {
+            el.classList.add('done');
+            if (check) check.innerHTML = '<i class="bi bi-check-circle-fill"></i>';
+        } else {
+            el.classList.remove('done');
+            if (check) check.innerHTML = '<i class="bi bi-circle"></i>';
+        }
+    });
+}
+
+function showNoAccess(status, courseId) {
+    document.getElementById('sidebar-chapters').innerHTML =
+        `<div style="padding:1.5rem;color:rgba(255,255,255,0.4);font-size:0.82rem;">No content available</div>`;
+    const main = document.getElementById('lessonContent');
+    if (status === 'pending') {
+        main.innerHTML = `
+        <div class="no-access-box">
+            <div class="lock-icon"><i class="bi bi-hourglass-split"></i></div>
+            <h3 style="font-family:var(--font-display);color:var(--dark);margin-bottom:0.5rem;">Request Pending</h3>
+            <p style="color:var(--text-muted);margin-bottom:1.5rem;">Your enrollment request is under review.</p>
+            <div class="pending-box">
+                <i class="bi bi-clock" style="color:#f59e0b;font-size:1.5rem;margin-bottom:0.5rem;display:block;"></i>
+                <p style="margin:0;font-size:0.88rem;color:#92400e;font-weight:600;">Waiting for admin approval</p>
+            </div>
+            <a href="/" style="display:inline-block;margin-top:1.5rem;" class="btn-primary-lg"><i class="bi bi-arrow-left"></i> Back to Courses</a>
+        </div>`;
+    } else {
+        main.innerHTML = `
+        <div class="no-access-box">
+            <div class="lock-icon"><i class="bi bi-lock-fill"></i></div>
+            <h3 style="font-family:var(--font-display);color:var(--dark);margin-bottom:0.5rem;">Access Required</h3>
+            <p style="color:var(--text-muted);margin-bottom:1.5rem;">You need to enroll in this course to access the content.</p>
+            <a href="/course_description_page/?course_id=${courseId}" class="btn-primary-lg">Enroll Now <i class="bi bi-arrow-right"></i></a>
+        </div>`;
+    }
+}
+
+function renderSidebar(chapters) {
+    const sidebar = document.getElementById('sidebar-chapters');
+    sidebar.innerHTML = '';
+    allLessons = [];
+    chapters.forEach((chapter) => {
+        const chDiv = document.createElement('div');
+        chDiv.className = 'chapter-item';
+        const lessonsHTML = chapter.lessons.map((lesson) => {
+            const idx = allLessons.length;
+            allLessons.push(lesson);
+            return `<div class="lesson-item" id="lesson-item-${idx}" onclick="loadLesson(${idx})">
+                <i class="bi bi-circle-fill" style="font-size:0.45rem;opacity:0.4;flex-shrink:0"></i>
+                <span style="flex:1">${lesson.title}</span>
+                <span class="lesson-check"><i class="bi bi-circle"></i></span>
+            </div>`;
+        }).join('');
+        chDiv.innerHTML = `
+            <div class="chapter-title open" onclick="toggleChapter(this)">
+                <i class="bi bi-chevron-right"></i>${chapter.title}
+            </div>
+            <div class="chapter-lessons">
+                ${lessonsHTML}
+                <button class="quiz-btn" id="quiz-btn-${chapter.id}" onclick="loadQuiz(${chapter.id})">
+                    <i class="bi bi-patch-question-fill"></i> Take Chapter Quiz
+                </button>
+            </div>`;
+        sidebar.appendChild(chDiv);
+    });
+    if (allLessons.length > 0) loadLesson(0);
+}
+
+function toggleChapter(el) {
+    el.classList.toggle('open');
+    const lessons = el.nextElementSibling;
+    lessons.style.display = lessons.style.display === 'none' ? 'block' : 'none';
+}
+
+function loadLesson(idx) {
+    currentLessonIndex = idx;
+    const lesson = allLessons[idx];
+    document.querySelectorAll('.lesson-item').forEach(el => el.classList.remove('active'));
+    const activeEl = document.getElementById(`lesson-item-${idx}`);
+    if (activeEl) activeEl.classList.add('active');
+    document.getElementById('current-lesson-title').textContent = lesson.title;
+
+    const isCompleted = completedLessons.has(lesson.id);
+    const codeBlock = lesson.code_example ? `
+        <div class="code-block">
+            <span class="code-label">Example</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            <pre>${escapeHtml(lesson.code_example)}</pre>
+        </div>` : '';
+
+    const prevBtn = idx > 0 ? `<button class="lesson-nav-btn" onclick="loadLesson(${idx-1})"><i class="bi bi-arrow-left"></i> Previous</button>` : '<div></div>';
+    const nextBtn = idx < allLessons.length - 1 ? `<button class="lesson-nav-btn primary-btn" onclick="loadLesson(${idx+1})">Next <i class="bi bi-arrow-right"></i></button>` : '<div></div>';
+
+    const markBtn = isCompleted
+        ? `<button class="mark-complete-btn completed" disabled><i class="bi bi-check-circle-fill"></i> Completed</button>`
+        : `<button class="mark-complete-btn" onclick="markComplete(${lesson.id}, this)"><i class="bi bi-check-circle"></i> Mark Complete</button>`;
+
+    document.getElementById('lessonContent').innerHTML = `
+        <div class="lesson-body">
+            <h1>${lesson.title}</h1>
+            <div>${lesson.content.replace(/\n/g,'<br>')}</div>
+            ${codeBlock}
+            <div class="lesson-nav">${prevBtn}${markBtn}${nextBtn}</div>
+        </div>`;
+}
+
+async function markComplete(lessonId, btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Saving...';
+
+    const res = await fetch('/mark_lesson_complete/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+        body: JSON.stringify({ username: getUsername(), lesson_id: lessonId, course_id: courseId })
+    });
+    const data = await res.json();
+
+    completedLessons.add(lessonId);
+    updateProgressUI(data.percentage);
+    updateLessonChecks();
+
+    btn.className = 'mark-complete-btn completed';
+    btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> Completed';
+
+    if (data.course_complete && data.certificate_id) {
+        _certId = data.certificate_id;
+        document.getElementById('certBtn').style.display = 'flex';
+        showCompletionBanner(data.certificate_id);
+    }
+}
+
+function showCompletionBanner(certId) {
+    const area = document.getElementById('lessonContent');
+    const banner = document.createElement('div');
+    banner.className = 'completion-banner';
+    banner.innerHTML = `
+        <div>
+            <h3>🎉 Course Completed!</h3>
+            <p>Congratulations! You have completed all lessons.</p>
+        </div>
+        <button class="view-cert-btn" onclick="showCertificate()">
+            <i class="bi bi-award-fill"></i> View Certificate
+        </button>`;
+    area.insertBefore(banner, area.firstChild);
+}
+
+async function showCertificate() {
+    if (!_certId) return;
+    const res = await fetch(`/get_certificate/?cert_id=${_certId}`);
+    const data = await res.json();
+    if (data.status !== 'ok') return;
+
+    document.getElementById('certContent').innerHTML = `
+        <div class="certificate-wrap">
+            <div class="cert-logo">🏆</div>
+            <div class="cert-label">Certificate of Completion</div>
+            <div class="cert-title">E-Learning Platform</div>
+            <div class="cert-sub">This is to certify that</div>
+            <div class="cert-name">${data.student_name}</div>
+            <div class="cert-course-label">has successfully completed</div>
+            <div class="cert-course">${data.course_name}</div>
+            <div class="cert-divider"></div>
+            <div class="cert-meta">
+                <div class="cert-meta-item">
+                    <div class="cert-meta-label">Issue Date</div>
+                    <div class="cert-meta-value">${data.issued_at}</div>
+                </div>
+                <div class="cert-meta-item">
+                    <div class="cert-meta-label">Certificate ID</div>
+                    <div class="cert-meta-value" style="font-size:0.75rem">${data.certificate_id}</div>
+                </div>
+                <div class="cert-meta-item">
+                    <div class="cert-meta-label">Status</div>
+                    <div class="cert-meta-value" style="color:#10b981">✓ Verified</div>
+                </div>
+            </div>
+        </div>
+        <div class="cert-actions">
+            <button class="cert-download-btn" onclick="printCertificate()">
+                <i class="bi bi-download"></i> Download / Print
+            </button>
+            <button class="cert-close-btn2" onclick="closeCertificate()">Close</button>
+        </div>`;
+
+    document.getElementById('certModal').classList.add('active');
+}
+
+function printCertificate() {
+    const content = document.querySelector('.certificate-wrap').outerHTML;
+    const win = window.open('', '_blank');
+    win.document.write(`
+        <html><head><title>Certificate</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap');
+            * { margin:0; padding:0; box-sizing:border-box; }
+            body { font-family: 'Inter', sans-serif; }
+            :root { --font-display: 'Space Grotesk', sans-serif; }
+            ${document.querySelector('style').textContent}
+        </style></head>
+        <body>${content}<script>window.onload=function(){window.print();}<\/script></body></html>`);
+    win.document.close();
+}
+
+function closeCertificate() { document.getElementById('certModal').classList.remove('active'); }
+function handleCertModalClick(e) { if (e.target === document.getElementById('certModal')) closeCertificate(); }
+
+// ===== QUIZ =====
+async function loadQuiz(chapterId) {
+    const uname = getUsername();
+    const res = await fetch(`/get_quiz/?chapter_id=${chapterId}&username=${uname}`);
+    const data = await res.json();
+    if (!data.has_quiz) { alert('No quiz available for this chapter yet!'); return; }
+    _quizData = data; _quizAnswers = {};
+    if (data.already_passed) { showQuizAlreadyPassed(data); }
+    else { showQuizQuestions(data); }
+    document.getElementById('quizModal').classList.add('active');
+}
+
+function showQuizAlreadyPassed(data) {
+    document.getElementById('quizContent').innerHTML = `
+        <div class="quiz-result passed">
+            <div class="quiz-result-emoji">🏆</div>
+            <div class="quiz-result-score">✓</div>
+            <div class="quiz-result-msg">Already Passed!</div>
+            <div class="quiz-result-sub">You have already passed this quiz.</div>
+            <div class="quiz-result-btns">
+                <button class="quiz-close-btn" onclick="closeQuiz()">Close</button>
+                <button class="quiz-retry-btn" onclick="showQuizQuestions(_quizData)">Retake Quiz</button>
+            </div>
+        </div>`;
+}
+
+function showQuizQuestions(data) {
+    _quizAnswers = {};
+    const total = data.questions.length;
+    let html = `
+        <div class="quiz-header">
+            <h2>📝 ${data.title}</h2>
+            <p>${total} question${total > 1 ? 's' : ''} &nbsp;•&nbsp; Pass mark: ${data.pass_percentage}%</p>
+        </div>
+        <div class="quiz-progress"><div class="quiz-progress-bar" id="quizProgressBar" style="width:0%"></div></div>`;
+    data.questions.forEach((q, i) => {
+        html += `
+        <div class="quiz-question">
+            <div class="quiz-q-text">Q${i+1}. ${q.text}</div>
+            <div class="quiz-options">
+                ${['A','B','C','D'].map(opt => `
+                    <button class="quiz-option" onclick="selectOption(this, ${q.id}, '${opt}', ${total})" data-qid="${q.id}" data-opt="${opt}">
+                        <span class="quiz-opt-letter">${opt}</span>${q.options[opt]}
+                    </button>`).join('')}
+            </div>
+        </div>`;
+    });
+    html += `<button class="quiz-submit-btn" onclick="submitQuiz()">Submit Quiz &nbsp;<i class="bi bi-arrow-right"></i></button>`;
+    document.getElementById('quizContent').innerHTML = html;
+}
+
+function selectOption(el, qid, opt, total) {
+    document.querySelectorAll(`.quiz-option[data-qid="${qid}"]`).forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    _quizAnswers[qid] = opt;
+    const bar = document.getElementById('quizProgressBar');
+    if (bar) bar.style.width = Math.round((Object.keys(_quizAnswers).length / total) * 100) + '%';
+}
+
+async function submitQuiz() {
+    if (!_quizData) return;
+    const total = _quizData.questions.length;
+    const answered = Object.keys(_quizAnswers).length;
+    if (answered < total) { if (!confirm(`You have ${total - answered} unanswered question(s). Submit anyway?`)) return; }
+    const currentUsername = getUsername();
+    try {
+        const res = await fetch('/submit_quiz/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+            body: JSON.stringify({ quiz_id: _quizData.quiz_id, username: currentUsername, answers: _quizAnswers })
+        });
+        if (!res.ok) { const err = await res.json(); alert('Error: ' + JSON.stringify(err)); return; }
+        const data = await res.json();
+        showQuizResult(data);
+        if (data.passed) {
+            const btn = document.getElementById(`quiz-btn-${_quizData.quiz_id}`);
+            if (btn) { btn.classList.add('passed'); btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> Quiz Passed ✓'; }
+        }
+    } catch(e) { alert('Network error: ' + e.message); }
+}
+
+function showQuizResult(data) {
+    const passed = data.passed;
+    let reviewHTML = '';
+    data.results.forEach((r, i) => {
+        reviewHTML += `
+        <div class="quiz-question">
+            <div class="quiz-q-text">Q${i+1}. ${r.question}</div>
+            <div class="quiz-options">
+                ${['A','B','C','D'].map(opt => {
+                    let cls = '';
+                    if (opt === r.correct_answer) cls = 'correct';
+                    else if (opt === r.your_answer && !r.is_correct) cls = 'wrong';
+                    return `<div class="quiz-option ${cls}" style="cursor:default">
+                        <span class="quiz-opt-letter">${opt}</span>${r.options[opt]}
+                        ${opt === r.correct_answer ? '<i class="bi bi-check-circle-fill" style="margin-left:auto;color:#10b981"></i>' : ''}
+                        ${opt === r.your_answer && !r.is_correct ? '<i class="bi bi-x-circle-fill" style="margin-left:auto;color:#ef4444"></i>' : ''}
+                    </div>`;
+                }).join('')}
+            </div>
+        </div>`;
+    });
+    document.getElementById('quizContent').innerHTML = `
+        <div class="quiz-result ${passed ? 'passed' : 'failed'}">
+            <div class="quiz-result-emoji">${passed ? '🎉' : '😔'}</div>
+            <div class="quiz-result-score">${data.percentage}%</div>
+            <div class="quiz-result-msg">${passed ? 'Congratulations! You Passed!' : 'Keep trying!'}</div>
+            <div class="quiz-result-sub">${data.score} / ${data.total} correct &nbsp;•&nbsp; Pass mark: ${data.pass_percentage}%</div>
+            <div class="quiz-result-btns">
+                <button class="quiz-close-btn" onclick="closeQuiz()">Close</button>
+                <button class="quiz-retry-btn" onclick="showQuizQuestions(_quizData)"><i class="bi bi-arrow-repeat"></i> Retry</button>
+            </div>
+        </div>
+        <div class="review-section"><div class="review-title">📊 Answer Review</div>${reviewHTML}</div>`;
+}
+
+function closeQuiz() { document.getElementById('quizModal').classList.remove('active'); }
+function handleModalClick(e) { if (e.target === document.getElementById('quizModal')) closeQuiz(); }
+function copyCode(btn) {
+    navigator.clipboard.writeText(btn.nextElementSibling.textContent);
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 2000);
+}
+function escapeHtml(str) { return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function toggleSidebar() { document.getElementById('learnSidebar').classList.toggle('open'); }
+function getCookie(name) {
+    let val = null;
+    document.cookie.split(';').forEach(c => {
+        const t = c.trim();
+        if (t.startsWith(name + '=')) val = decodeURIComponent(t.slice(name.length + 1));
+    });
+    return val;
+}
+</script>
+{% endblock %}

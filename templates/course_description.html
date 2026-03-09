@@ -1,0 +1,51 @@
+{% extends 'nav.html' %}{% load static %}{% block content %}
+<div class="course-hero">
+    <div class="container">
+        <div class="course-hero-inner">
+            <div class="course-img-wrap"><img id="course-image" src="" alt="Course"></div>
+            <div class="course-hero-text">
+                <div class="course-category-badge" id="course-category">Course</div>
+                <h1 class="course-hero-title" id="course-title">Loading...</h1>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="course-content">
+    <div class="container">
+        <div class="content-layout">
+            <div class="description-card">
+                <h3><i class="bi bi-journal-text me-2 text-primary"></i>Course Description</h3>
+                <p class="description-text" id="course-description">Loading...</p>
+            </div>
+            <div class="sidebar-card">
+                <img id="sidebar-image" src="" alt="Course" class="sidebar-img">
+                <div class="sidebar-body">
+                    <p class="sidebar-title" id="sidebar-title">Loading...</p>
+                    <p class="sidebar-price" id="sidebar-price"></p>
+                    <a id="request-link" href="#" class="btn-enroll">
+                        <i class="bi bi-lightning-charge-fill"></i> Request Enrollment
+                    </a>
+                    <p class="sidebar-note"><i class="bi bi-info-circle me-1"></i>Sign in required to enroll.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+const params=new URLSearchParams(window.location.search),courseId=params.get('course_id');
+if(!courseId) document.getElementById('request-link').style.display='none';
+else document.getElementById('request-link').href=`/request_page/?course_id=${courseId}`;
+fetch(`/get_course/?course_id=${courseId}`).then(r=>r.json()).then(d=>{
+    const c=d.course;
+    document.getElementById('course-image').src=c.image_url;
+    document.getElementById('course-category').textContent=c.category||'Course';
+    document.getElementById('course-title').textContent=c.course_name;
+    document.getElementById('course-description').textContent=c.description||'No description available.';
+    document.getElementById('sidebar-image').src=c.image_url;
+    document.getElementById('sidebar-title').textContent=c.course_name;
+    const priceEl=document.getElementById('sidebar-price');
+    priceEl.textContent=c.price===0||c.price===0.0?'Free':'₹'+parseFloat(c.price).toFixed(0);
+    priceEl.style.color=c.price===0?'#10b981':'#6366f1';
+}).catch(()=>{document.getElementById('course-title').textContent='Course not found';});
+</script>
+{% endblock %}

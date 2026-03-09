@@ -1,0 +1,259 @@
+{% extends 'nav.html' %}
+{% block content %}
+{% load static %}
+
+<!-- ===================== HOME ===================== -->
+<section id="home">
+    <div class="home-bg">
+        <div class="home-grid"></div>
+        <div class="home-orb orb-1"></div>
+        <div class="home-orb orb-2"></div>
+        <div class="home-orb orb-3"></div>
+    </div>
+    <div class="home-content">
+        <div class="home-text">
+            <div class="home-tag">
+                <span></span>
+                New Courses Available
+            </div>
+            <h1 class="home-title">
+                Learn Skills That <span class="highlight">Shape Your Future</span>
+            </h1>
+            <p class="home-desc">
+                Master in-demand skills with expert-led courses in programming,
+                data science, web development & more. Learn at your pace, on your schedule.
+            </p>
+            <div class="home-cta">
+                <a href="#courses" class="btn-primary-lg">
+                    Explore Courses <i class="bi bi-arrow-right"></i>
+                </a>
+                <a href="#subscribe" class="btn-ghost-lg">
+                    <i class="bi bi-play-circle"></i> How it Works
+                </a>
+            </div>
+            <div class="home-stats">
+                <div class="hstat">
+                    <span class="hstat-num">10+</span>
+                    <span class="hstat-lbl">Courses</span>
+                </div>
+                <div class="hstat-div"></div>
+                <div class="hstat">
+                    <span class="hstat-num">500+</span>
+                    <span class="hstat-lbl">Students</span>
+                </div>
+                <div class="hstat-div"></div>
+                <div class="hstat">
+                    <span class="hstat-num">100%</span>
+                    <span class="hstat-lbl">Online</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hero Thumbnail -->
+        <div class="home-visual">
+            <div class="home-card-main">
+                <div class="video-thumb-wrap" onclick="playVideo()">
+                    <img
+                        src="https://img.youtube.com/vi/rfscVS0vtbw/maxresdefault.jpg"
+                        alt="Python for Beginners"
+                        class="home-img video-thumb-img">
+                    <div class="play-btn-overlay">
+                        <div class="play-btn-circle">
+                            <i class="bi bi-play-fill"></i>
+                        </div>
+                        <span class="play-label">Watch Free Preview</span>
+                    </div>
+                </div>
+                <div class="home-card-footer">
+                    <span class="now-learning">🔴 Live</span>
+                    <span class="home-card-title">Python for Beginners</span>
+                </div>
+            </div>
+
+            <!-- Video Modal -->
+            <div class="video-modal" id="videoModal" onclick="closeVideo()">
+                <div class="video-modal-inner" onclick="event.stopPropagation()">
+                    <button class="modal-close" onclick="closeVideo()"><i class="bi bi-x-lg"></i></button>
+                    <iframe id="videoIframe"
+                        src=""
+                        title="Python for Beginners"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen
+                        style="display:none">
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+function playVideo() {
+    const modal = document.getElementById('videoModal');
+    const iframe = document.getElementById('videoIframe');
+    iframe.src = 'https://www.youtube.com/embed/rfscVS0vtbw?autoplay=1&rel=0';
+    iframe.style.display = 'block';
+    modal.classList.add('active');
+}
+function closeVideo() {
+    document.getElementById('videoModal').classList.remove('active');
+    document.getElementById('videoIframe').src = '';
+}
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeVideo(); });
+</script>
+</section>
+
+<!-- ===================== ABOUT ===================== -->
+<section id="about">
+    <div class="container">
+        <div class="section-label">Why Choose Us</div>
+        <h2 class="section-title">Everything You Need<br>to Succeed</h2>
+        <p class="section-subtitle">
+            A modern e-learning platform designed for real-world skill building,
+            with top instructors and a community that supports your growth.
+        </p>
+        <div class="about-cards">
+            <div class="about-card">
+                <div class="about-icon"><i class="bi bi-laptop"></i></div>
+                <h4>Learn Anywhere</h4>
+                <p>Access all courses from any device — phone, tablet, or desktop — at any time you choose.</p>
+            </div>
+            <div class="about-card">
+                <div class="about-icon"><i class="bi bi-people-fill"></i></div>
+                <h4>Expert Instructors</h4>
+                <p>Learn directly from industry professionals with years of hands-on experience in their fields.</p>
+            </div>
+            <div class="about-card">
+                <div class="about-icon"><i class="bi bi-patch-check-fill"></i></div>
+                <h4>Quality Curriculum</h4>
+                <p>Carefully crafted content focused on practical skills you can apply immediately in real projects.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== COURSES ===================== -->
+<section id="courses">
+    <div class="container">
+        <div class="section-label">Our Courses</div>
+        <h2 class="section-title">Explore Top Courses</h2>
+        <p class="section-subtitle">From beginner to advanced — find the perfect course to match your goals and career.</p>
+        <div class="search-wrap">
+            <div class="search-box">
+                <i class="bi bi-search search-icon"></i>
+                <input type="text" id="courseSearch" placeholder="Search courses..." oninput="filterCourses(this.value)">
+                <button class="search-clear" id="clearBtn" onclick="clearSearch()" style="display:none">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+            <div class="filter-tags">
+                <button class="filter-tag active" onclick="filterByTag('all', this)">All</button>
+                <button class="filter-tag" onclick="filterByTag('programming', this)">Programming</button>
+                <button class="filter-tag" onclick="filterByTag('datascience', this)">Data Science</button>
+                <button class="filter-tag" onclick="filterByTag('ml', this)">ML & AI</button>
+                <button class="filter-tag" onclick="filterByTag('web', this)">Web Dev</button>
+                <button class="filter-tag" onclick="filterByTag('cyber', this)">Cyber Security</button>
+                <button class="filter-tag" onclick="filterByTag('cloud', this)">Cloud</button>
+            </div>
+        </div>
+
+        <!-- Grid — script loads AFTER this div -->
+        <div id="course-container" class="courses-grid"></div>
+    </div>
+</section>
+
+<!-- ===================== TESTIMONIALS ===================== -->
+<section id="testimonials">
+    <div class="container">
+        <div class="section-label">Student Reviews</div>
+        <h2 class="section-title">What Our Students Say</h2>
+        <p class="section-subtitle">Real stories from real learners who transformed their careers with our courses.</p>
+        <div class="testi-grid">
+            <div class="testi-card">
+                <div class="testi-stars">★★★★★</div>
+                <p class="testi-text">"The Python course was incredibly well-structured. I went from zero coding knowledge to building my own projects in just a few weeks!"</p>
+                <div class="testi-author">
+                    <div class="testi-avatar">AK</div>
+                    <div>
+                        <div class="testi-name">Amit Kumar</div>
+                        <div class="testi-role">Software Developer</div>
+                    </div>
+                </div>
+            </div>
+            <div class="testi-card">
+                <div class="testi-stars">★★★★★</div>
+                <p class="testi-text">"The Web Development course is top-notch. The instructor explains everything clearly and the projects are hands-on and practical."</p>
+                <div class="testi-author">
+                    <div class="testi-avatar">PS</div>
+                    <div>
+                        <div class="testi-name">Priya Sharma</div>
+                        <div class="testi-role">Frontend Developer</div>
+                    </div>
+                </div>
+            </div>
+            <div class="testi-card">
+                <div class="testi-stars">★★★★☆</div>
+                <p class="testi-text">"Data Analysis course helped me land a new job! The platform is easy to use and content is always up-to-date with industry standards."</p>
+                <div class="testi-author">
+                    <div class="testi-avatar">RJ</div>
+                    <div>
+                        <div class="testi-name">Rahul Joshi</div>
+                        <div class="testi-role">Data Analyst</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== HOW IT WORKS ===================== -->
+<section id="subscribe">
+    <div class="container">
+        <div class="section-label">Simple Process</div>
+        <h2 class="section-title">How It Works</h2>
+        <p class="section-subtitle">Get started in minutes — just four easy steps to begin your learning journey.</p>
+
+        <div class="steps-container">
+            <div class="step">
+                <div class="step-number">01</div>
+                <div class="step-content">
+                    <h4>Browse Courses</h4>
+                    <p>Explore our wide range of courses across multiple tech disciplines.</p>
+                </div>
+            </div>
+            <div class="step-arrow"><i class="bi bi-arrow-right"></i></div>
+            <div class="step">
+                <div class="step-number">02</div>
+                <div class="step-content">
+                    <h4>Pick a Course</h4>
+                    <p>Choose the course that best fits your learning goals and budget.</p>
+                </div>
+            </div>
+            <div class="step-arrow"><i class="bi bi-arrow-right"></i></div>
+            <div class="step">
+                <div class="step-number">03</div>
+                <div class="step-content">
+                    <h4>Request Access</h4>
+                    <p>Click Request on the course page and fill in the short form.</p>
+                </div>
+            </div>
+            <div class="step-arrow"><i class="bi bi-arrow-right"></i></div>
+            <div class="step">
+                <div class="step-number">04</div>
+                <div class="step-content">
+                    <h4>Start Learning</h4>
+                    <p>Once approved, jump in and start building real-world skills!</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="howit-note">
+            <i class="bi bi-info-circle me-2"></i>
+            You must be signed in to request course enrollment.
+        </div>
+    </div>
+</section>
+
+<!-- Script loads AFTER the course-container div exists in DOM -->
+<script src="{% static 'JS/script.js' %}"></script>
+
+{% endblock %}

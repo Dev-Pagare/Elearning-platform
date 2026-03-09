@@ -1,0 +1,25 @@
+/* Auth animated background */
+.auth-page {
+    background: linear-gradient(-45deg, #0a0a0f, #1a1040, #6366f1, #111827);
+    background-size: 400% 400%;
+    animation: gradientShift 14s ease infinite;
+}
+@keyframes gradientShift {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+.auth-page::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+        radial-gradient(circle at 25% 50%, rgba(255,255,255,0.04) 1px, transparent 1px),
+        radial-gradient(circle at 75% 25%, rgba(255,255,255,0.06) 1px, transparent 1px);
+    background-size: 70px 70px, 100px 100px;
+    animation: particleFloat 30s linear infinite;
+    pointer-events: none; z-index: 0;
+}
+@keyframes particleFloat {
+    0%   { transform: translateY(0); }
+    100% { transform: translateY(-100px); }
+}

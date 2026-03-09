@@ -1,0 +1,37 @@
+{% extends 'nav.html' %}{% load static %}{% block content %}
+<div class="enrolled-page">
+    <div class="container">
+        <div class="page-header">
+            <div class="section-label">Your Progress</div>
+            <h2 class="section-title">My Enrolled Courses</h2>
+            <p class="section-subtitle">Pick up where you left off and keep learning.</p>
+        </div>
+        <div id="loading-state" class="enrolled-grid">
+            <div class="skeleton-card"><div class="skeleton" style="width:52px;height:52px;border-radius:10px;flex-shrink:0"></div><div style="flex:1"><div class="skeleton" style="height:14px;width:70%;margin-bottom:8px"></div><div class="skeleton" style="height:11px;width:40%"></div></div></div>
+            <div class="skeleton-card"><div class="skeleton" style="width:52px;height:52px;border-radius:10px;flex-shrink:0"></div><div style="flex:1"><div class="skeleton" style="height:14px;width:80%;margin-bottom:8px"></div><div class="skeleton" style="height:11px;width:50%"></div></div></div>
+            <div class="skeleton-card"><div class="skeleton" style="width:52px;height:52px;border-radius:10px;flex-shrink:0"></div><div style="flex:1"><div class="skeleton" style="height:14px;width:60%;margin-bottom:8px"></div><div class="skeleton" style="height:11px;width:35%"></div></div></div>
+        </div>
+        <div id="enrolled-courses" class="enrolled-grid" style="display:none"></div>
+        <div id="empty-state" class="empty-state" style="display:none">
+            <div class="empty-icon"><i class="bi bi-journal-bookmark"></i></div>
+            <h4>No Courses Yet</h4>
+            <p>Browse our catalog and enroll in your first course!</p>
+            <a href="{% url 'index' %}#courses" class="btn-primary-lg">Browse Courses <i class="bi bi-arrow-right"></i></a>
+        </div>
+    </div>
+</div>
+<script>
+window.onload=function(){
+    const token=localStorage.getItem('token');
+    if(!token){window.location.href="{% url 'login_page' %}";return;}
+    fetch('/student_info/',{method:'POST',headers:{'Authorization':`Bearer ${token}`}})
+    .then(r=>r.json()).then(d=>{
+        document.getElementById('loading-state').style.display='none';
+        const courses=d.enrolled_courses||[],grid=document.getElementById('enrolled-courses');
+        if(!courses.length){document.getElementById('empty-state').style.display='block';return;}
+        grid.style.display='grid';
+        courses.forEach(c=>{grid.innerHTML+=`<a class="enrolled-card" href="/learn/?course_id=${c.course_id}"><div class="enrolled-icon"><i class="bi bi-play-circle-fill"></i></div><div class="enrolled-info"><p class="enrolled-name">${c.course_name}</p><p class="enrolled-meta">Continue learning →</p></div><i class="bi bi-chevron-right enrolled-arrow"></i></a>`;});
+    }).catch(()=>{document.getElementById('loading-state').style.display='none';document.getElementById('empty-state').style.display='block';});
+};
+</script>
+{% endblock %}
