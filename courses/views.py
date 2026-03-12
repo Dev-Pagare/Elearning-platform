@@ -36,6 +36,9 @@ def enrolled_courses_page(request):
 def learn_page(request):
     return render(request, 'learn.html')
 
+def dashboard_page(request):
+    return render(request, 'dashboard.html')
+
 def generate_token(username):
     payload = {"username": username, "exp": datetime.utcnow() + timedelta(days=1)}
     token = jwt.encode(payload, settings.SECRET_KEY, algorithm="HS256")
@@ -210,7 +213,6 @@ def save_contact(request):
         return JsonResponse({'status': 'ok'})
     return JsonResponse({'status': 'error'}, status=400)
 
-
 def get_quiz(request):
     chapter_id = request.GET.get('chapter_id')
     username = request.GET.get('username')
@@ -251,7 +253,6 @@ def get_quiz(request):
         'already_passed': already_passed,
         'questions': questions
     })
-
 
 @csrf_exempt
 def submit_quiz(request):
@@ -306,7 +307,6 @@ def submit_quiz(request):
             'results': results
         })
 
-
 @csrf_exempt
 def mark_lesson_complete(request):
     if request.method == 'POST':
@@ -357,7 +357,6 @@ def mark_lesson_complete(request):
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
 
-
 @csrf_exempt
 def get_progress(request):
     username = request.GET.get('username')
@@ -382,7 +381,6 @@ def get_progress(request):
     except Exception as e:
         return JsonResponse({'completed_lesson_ids': [], 'total': 0, 'percentage': 0, 'certificate_id': None})
 
-
 @csrf_exempt
 def get_certificate(request):
     cert_id = request.GET.get('cert_id')
@@ -397,3 +395,70 @@ def get_certificate(request):
         })
     except Certificate.DoesNotExist:
         return JsonResponse({'status': 'error'}, status=404)
+
+def get_dashboard(request):
+    username = request.GET.get('username')
+    try:
+        student = Student.objects.get(username=username)
+
+        # Enrolled courses + progress
+        enrolled = student.enrolled_courses.all()
+        courses_data = []
+        for course in enrolled:
+            total_lessons = Lesson.objects.filter(chapter__course=course).count()
+            completed = LessonProgress.objects.filter(
+                student=student, lesson__chapter__course=course
+            ).count()
+            percentage = int((completed / total_lessons) * 100) if total_lessons > 0 else 0
+            cert = Certificate.objects.filter(student=student, course=course).first()
+            try:
+                image = course.image_url.url
+            except:
+                image = ''
+            courses_data.append({
+                'course_id': course.pk,
+                'course_name': course.course_name,
+                'category': course.category,
+                'image_url': image,
+                'total_lessons': total_lessons,
+                'completed_lessons': completed,
+                'percentage': percentage,
+                'certificate_id': cert.certificate_id if cert else None,
+            })
+
+        # Stats
+        total_enrolled = enrolled.count()
+        total_completed = sum(1 for c in courses_data if c['percentage'] == 100)
+        total_certificates = Certificate.objects.filter(student=student).count()
+        total_quizzes_passed = QuizResult.objects.filter(student=student, passed=True).count()
+        total_lessons_done = LessonProgress.objects.filter(student=student).count()
+
+        # Recent quiz results
+        recent_quizzes = QuizResult.objects.filter(student=student).order_by('-attempted_at')[:5]
+        quiz_data = []
+        for qr in recent_quizzes:
+            quiz_data.append({
+                'quiz_title': qr.quiz.title,
+                'score': qr.score,
+                'total': qr.total,
+                'percentage': int((qr.score / qr.total) * 100) if qr.total > 0 else 0,
+                'passed': qr.passed,
+                'attempted_at': qr.attempted_at.strftime('%b %d, %Y'),
+            })
+
+        return JsonResponse({
+            'student_name': student.name,
+            'stats': {
+                'total_enrolled': total_enrolled,
+                'total_completed': total_completed,
+                'total_certificates': total_certificates,
+                'total_quizzes_passed': total_quizzes_passed,
+                'total_lessons_done': total_lessons_done,
+            },
+            'courses': courses_data,
+            'recent_quizzes': quiz_data,
+        })
+    except Student.DoesNotExist:
+        return JsonResponse({'error': 'Student not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)

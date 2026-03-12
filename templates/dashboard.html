@@ -1,0 +1,444 @@
+{% extends 'nav.html' %}
+{% load static %}
+{% block content %}
+<div style="padding-top: var(--nav-height); min-height:100vh; background:#f8fafc;">
+
+<div class="dash-hero">
+    <div class="container">
+        <div class="dash-hero-inner">
+            <div>
+                <p class="dash-greeting">Welcome back 👋</p>
+                <h1 class="dash-name" id="studentName">Loading...</h1>
+                <p class="dash-sub">Track your learning journey from here.</p>
+            </div>
+            <a href="{% url 'index' %}#courses" class="dash-explore-btn">
+                <i class="bi bi-plus-circle-fill"></i> Explore Courses
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="container" style="padding-bottom: 4rem;">
+
+    <!-- Stats Cards -->
+    <div class="dash-stats" id="dashStats">
+        <div class="stat-card blue">
+            <div class="stat-icon"><i class="bi bi-collection-play-fill"></i></div>
+            <div class="stat-num" id="statEnrolled">0</div>
+            <div class="stat-label">Courses Enrolled</div>
+        </div>
+        <div class="stat-card green">
+            <div class="stat-icon"><i class="bi bi-check-circle-fill"></i></div>
+            <div class="stat-num" id="statCompleted">0</div>
+            <div class="stat-label">Courses Completed</div>
+        </div>
+        <div class="stat-card gold">
+            <div class="stat-icon"><i class="bi bi-award-fill"></i></div>
+            <div class="stat-num" id="statCerts">0</div>
+            <div class="stat-label">Certificates Earned</div>
+        </div>
+        <div class="stat-card purple">
+            <div class="stat-icon"><i class="bi bi-patch-check-fill"></i></div>
+            <div class="stat-num" id="statQuizzes">0</div>
+            <div class="stat-label">Quizzes Passed</div>
+        </div>
+        <div class="stat-card teal">
+            <div class="stat-icon"><i class="bi bi-book-fill"></i></div>
+            <div class="stat-num" id="statLessons">0</div>
+            <div class="stat-label">Lessons Completed</div>
+        </div>
+    </div>
+
+    <div class="dash-grid">
+
+        <!-- My Courses -->
+        <div class="dash-section" style="grid-column: 1 / -1;">
+            <div class="dash-section-header">
+                <h2 class="dash-section-title"><i class="bi bi-collection-play"></i> My Courses</h2>
+                <a href="{% url 'enrolled_courses_page' %}" class="dash-see-all">See All</a>
+            </div>
+            <div class="course-progress-list" id="courseProgressList">
+                <div class="dash-loading">
+                    <div class="spinner"></div>
+                    <p>Loading your courses...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Quiz Results -->
+        <div class="dash-section">
+            <div class="dash-section-header">
+                <h2 class="dash-section-title"><i class="bi bi-patch-question-fill"></i> Recent Quizzes</h2>
+            </div>
+            <div id="recentQuizzes">
+                <div class="dash-loading"><div class="spinner"></div></div>
+            </div>
+        </div>
+
+        <!-- Certificates -->
+        <div class="dash-section">
+            <div class="dash-section-header">
+                <h2 class="dash-section-title"><i class="bi bi-award"></i> My Certificates</h2>
+            </div>
+            <div id="certsList">
+                <div class="dash-loading"><div class="spinner"></div></div>
+            </div>
+        </div>
+
+    </div>
+</div>
+</div>
+
+<style>
+.dash-hero {
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 60%, #312e81 100%);
+    padding: 3rem 0 2.5rem;
+    position: relative; overflow: hidden;
+}
+.dash-hero::before {
+    content: '';
+    position: absolute; width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(99,102,241,0.2), transparent 70%);
+    top: -100px; right: -100px; border-radius: 50%;
+}
+.dash-hero-inner {
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem;
+}
+.dash-greeting { color: rgba(255,255,255,0.55); font-size: 0.9rem; font-weight: 500; margin: 0 0 0.3rem; }
+.dash-name { font-family: var(--font-display); font-size: 2rem; font-weight: 800; color: white; margin: 0 0 0.4rem; }
+.dash-sub { color: rgba(255,255,255,0.45); font-size: 0.88rem; margin: 0; }
+.dash-explore-btn {
+    display: flex; align-items: center; gap: 0.5rem;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white; padding: 0.75rem 1.5rem; border-radius: 12px;
+    font-weight: 700; font-size: 0.88rem; text-decoration: none;
+    transition: all 0.2s; box-shadow: 0 4px 14px rgba(99,102,241,0.4);
+}
+.dash-explore-btn:hover { color: white; transform: translateY(-2px); opacity: 0.9; }
+
+/* Stats */
+.dash-stats {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem;
+    margin: 2rem 0;
+}
+.stat-card {
+    background: white; border-radius: 16px; padding: 1.5rem 1.25rem;
+    text-align: center; box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    transition: all 0.25s; border-top: 4px solid transparent;
+}
+.stat-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+.stat-card.blue { border-top-color: #6366f1; }
+.stat-card.green { border-top-color: #10b981; }
+.stat-card.gold { border-top-color: #f59e0b; }
+.stat-card.purple { border-top-color: #8b5cf6; }
+.stat-card.teal { border-top-color: #06b6d4; }
+.stat-icon { font-size: 1.6rem; margin-bottom: 0.5rem; }
+.stat-card.blue .stat-icon { color: #6366f1; }
+.stat-card.green .stat-icon { color: #10b981; }
+.stat-card.gold .stat-icon { color: #f59e0b; }
+.stat-card.purple .stat-icon { color: #8b5cf6; }
+.stat-card.teal .stat-icon { color: #06b6d4; }
+.stat-num {
+    font-family: var(--font-display); font-size: 2.2rem; font-weight: 800;
+    color: #0f172a; line-height: 1; margin-bottom: 0.35rem;
+}
+.stat-label { font-size: 0.75rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* Grid */
+.dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+.dash-section {
+    background: white; border-radius: 20px; padding: 1.75rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+.dash-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+.dash-section-title { font-family: var(--font-display); font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 0.5rem; }
+.dash-section-title i { color: #6366f1; }
+.dash-see-all { font-size: 0.8rem; font-weight: 600; color: #6366f1; text-decoration: none; }
+.dash-see-all:hover { text-decoration: underline; }
+
+/* Course Progress Cards */
+.course-progress-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+.cp-card {
+    border: 1.5px solid #e5e7eb; border-radius: 14px; padding: 1.25rem;
+    transition: all 0.2s; position: relative; overflow: hidden;
+}
+.cp-card:hover { border-color: #6366f1; box-shadow: 0 4px 16px rgba(99,102,241,0.1); }
+.cp-card-top { display: flex; align-items: flex-start; gap: 0.75rem; margin-bottom: 1rem; }
+.cp-img { width: 48px; height: 48px; border-radius: 10px; object-fit: cover; flex-shrink: 0; background: #e0e7ff; }
+.cp-name { font-family: var(--font-display); font-size: 0.88rem; font-weight: 700; color: #0f172a; line-height: 1.3; margin-bottom: 0.25rem; }
+.cp-cat { font-size: 0.72rem; font-weight: 600; color: #6366f1; background: #eef2ff; padding: 0.15rem 0.5rem; border-radius: 999px; display: inline-block; }
+.cp-progress-wrap { background: #f1f5f9; border-radius: 999px; height: 8px; margin-bottom: 0.5rem; overflow: hidden; }
+.cp-progress-bar { height: 100%; border-radius: 999px; transition: width 0.8s ease; }
+.cp-progress-bar.done { background: linear-gradient(90deg, #10b981, #059669); }
+.cp-progress-bar.ongoing { background: linear-gradient(90deg, #6366f1, #8b5cf6); }
+.cp-progress-meta { display: flex; justify-content: space-between; align-items: center; }
+.cp-pct { font-size: 0.8rem; font-weight: 700; color: #374151; }
+.cp-lessons { font-size: 0.72rem; color: #9ca3af; }
+.cp-actions { display: flex; gap: 0.5rem; margin-top: 0.85rem; }
+.cp-continue-btn {
+    flex: 1; padding: 0.5rem; background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white; border: none; border-radius: 8px; font-size: 0.78rem;
+    font-weight: 700; cursor: pointer; text-decoration: none; display: flex;
+    align-items: center; justify-content: center; gap: 0.3rem;
+    font-family: var(--font-main); transition: all 0.2s;
+}
+.cp-continue-btn:hover { opacity: 0.9; color: white; }
+.cp-cert-btn {
+    padding: 0.5rem 0.75rem; background: #fef3c7; color: #92400e;
+    border: none; border-radius: 8px; font-size: 0.78rem; font-weight: 700;
+    cursor: pointer; font-family: var(--font-main); transition: all 0.2s;
+    text-decoration: none; display: flex; align-items: center; gap: 0.3rem;
+}
+.cp-cert-btn:hover { background: #fde68a; color: #78350f; }
+.completed-badge {
+    position: absolute; top: 0.75rem; right: 0.75rem;
+    background: #10b981; color: white; font-size: 0.65rem;
+    font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 999px;
+}
+
+/* Quiz Results */
+.quiz-result-item {
+    display: flex; align-items: center; gap: 1rem;
+    padding: 0.85rem 0; border-bottom: 1px solid #f1f5f9;
+}
+.quiz-result-item:last-child { border-bottom: none; }
+.qr-score-circle {
+    width: 46px; height: 46px; border-radius: 50%; display: flex;
+    align-items: center; justify-content: center; font-size: 0.78rem;
+    font-weight: 800; flex-shrink: 0;
+}
+.qr-score-circle.passed { background: #f0fdf4; color: #059669; border: 2px solid #10b981; }
+.qr-score-circle.failed { background: #fef2f2; color: #dc2626; border: 2px solid #ef4444; }
+.qr-info { flex: 1; }
+.qr-title { font-size: 0.85rem; font-weight: 700; color: #1f2937; margin-bottom: 0.15rem; }
+.qr-meta { font-size: 0.75rem; color: #9ca3af; }
+.qr-badge { font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 999px; }
+.qr-badge.passed { background: #f0fdf4; color: #059669; }
+.qr-badge.failed { background: #fef2f2; color: #dc2626; }
+
+/* Certificates */
+.cert-item {
+    display: flex; align-items: center; gap: 1rem;
+    padding: 1rem; border-radius: 12px; border: 1.5px solid #e5e7eb;
+    margin-bottom: 0.75rem; transition: all 0.2s;
+}
+.cert-item:hover { border-color: #f59e0b; background: #fffbeb; }
+.cert-medal { width: 44px; height: 44px; background: linear-gradient(135deg, #fbbf24, #f59e0b); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; }
+.cert-info { flex: 1; }
+.cert-course-name { font-size: 0.88rem; font-weight: 700; color: #1f2937; margin-bottom: 0.2rem; }
+.cert-date { font-size: 0.75rem; color: #9ca3af; }
+.cert-view-btn {
+    padding: 0.4rem 0.85rem; background: linear-gradient(135deg, #f59e0b, #f97316);
+    color: white; border: none; border-radius: 8px; font-size: 0.75rem;
+    font-weight: 700; cursor: pointer; font-family: var(--font-main);
+    transition: all 0.2s;
+}
+.cert-view-btn:hover { opacity: 0.9; }
+
+/* Empty state */
+.dash-empty { text-align: center; padding: 2.5rem 1rem; color: #9ca3af; }
+.dash-empty i { font-size: 2.5rem; margin-bottom: 0.75rem; display: block; opacity: 0.4; }
+.dash-empty p { font-size: 0.85rem; margin: 0; }
+
+/* Loading */
+.dash-loading { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; padding: 2rem; color: #9ca3af; font-size: 0.85rem; }
+.spinner { width: 28px; height: 28px; border: 3px solid #e5e7eb; border-top-color: #6366f1; border-radius: 50%; animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Nav dashboard button */
+.btn-nav-dashboard {
+    background: rgba(99,102,241,0.15); color: #a5b4fc;
+    border: 1.5px solid rgba(99,102,241,0.3); border-radius: 10px;
+    padding: 0.4rem 0.9rem; font-size: 0.82rem; font-weight: 700;
+    text-decoration: none; transition: all 0.2s; display: flex; align-items: center;
+}
+.btn-nav-dashboard:hover { background: rgba(99,102,241,0.25); color: white; }
+
+@media(max-width: 992px) {
+    .dash-stats { grid-template-columns: repeat(3, 1fr); }
+    .dash-grid { grid-template-columns: 1fr; }
+    .course-progress-list { grid-template-columns: 1fr 1fr; }
+}
+@media(max-width: 576px) {
+    .dash-stats { grid-template-columns: repeat(2, 1fr); }
+    .course-progress-list { grid-template-columns: 1fr; }
+    .dash-name { font-size: 1.5rem; }
+}
+</style>
+
+<script>
+const token = localStorage.getItem('token');
+let _certData = {};
+
+function getUsername() {
+    try {
+        const tok = localStorage.getItem('token');
+        if (!tok) return '';
+        return JSON.parse(atob(tok.split('.')[1])).username || '';
+    } catch(e) { return ''; }
+}
+
+window.onload = async function() {
+    if (!token) { window.location.href = "{% url 'login_page' %}"; return; }
+    const username = getUsername();
+    if (!username) { window.location.href = "{% url 'login_page' %}"; return; }
+
+    const res = await fetch(`/get_dashboard/?username=${username}`);
+    const data = await res.json();
+
+    if (data.error) { console.error(data.error); return; }
+
+    // Name
+    document.getElementById('studentName').textContent = data.student_name;
+
+    // Stats
+    document.getElementById('statEnrolled').textContent = data.stats.total_enrolled;
+    document.getElementById('statCompleted').textContent = data.stats.total_completed;
+    document.getElementById('statCerts').textContent = data.stats.total_certificates;
+    document.getElementById('statQuizzes').textContent = data.stats.total_quizzes_passed;
+    document.getElementById('statLessons').textContent = data.stats.total_lessons_done;
+
+    // Courses
+    renderCourses(data.courses);
+
+    // Quizzes
+    renderQuizzes(data.recent_quizzes);
+
+    // Certificates
+    renderCerts(data.courses);
+};
+
+function renderCourses(courses) {
+    const el = document.getElementById('courseProgressList');
+    if (!courses.length) {
+        el.innerHTML = `<div class="dash-empty" style="grid-column:1/-1">
+            <i class="bi bi-collection-play"></i>
+            <p>No courses enrolled yet. <a href="{% url 'index' %}#courses" style="color:#6366f1;font-weight:600;">Browse courses →</a></p>
+        </div>`;
+        return;
+    }
+    el.innerHTML = courses.map(c => {
+        const barClass = c.percentage === 100 ? 'done' : 'ongoing';
+        const completedBadge = c.percentage === 100 ? '<div class="completed-badge">✓ Done</div>' : '';
+        const certBtn = c.certificate_id
+            ? `<button class="cp-cert-btn" onclick="viewCert('${c.certificate_id}', '${c.course_name}')">
+                <i class="bi bi-award-fill"></i> Cert
+               </button>` : '';
+        return `
+        <div class="cp-card">
+            ${completedBadge}
+            <div class="cp-card-top">
+                <img class="cp-img" src="${c.image_url || ''}" onerror="this.style.background='#e0e7ff';this.src=''" alt="">
+                <div>
+                    <div class="cp-name">${c.course_name}</div>
+                    <span class="cp-cat">${c.category}</span>
+                </div>
+            </div>
+            <div class="cp-progress-wrap">
+                <div class="cp-progress-bar ${barClass}" style="width:${c.percentage}%"></div>
+            </div>
+            <div class="cp-progress-meta">
+                <span class="cp-pct">${c.percentage}%</span>
+                <span class="cp-lessons">${c.completed_lessons}/${c.total_lessons} lessons</span>
+            </div>
+            <div class="cp-actions">
+                <a href="/learn/?course_id=${c.course_id}" class="cp-continue-btn">
+                    <i class="bi bi-play-fill"></i>
+                    ${c.percentage === 0 ? 'Start' : c.percentage === 100 ? 'Review' : 'Continue'}
+                </a>
+                ${certBtn}
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function renderQuizzes(quizzes) {
+    const el = document.getElementById('recentQuizzes');
+    if (!quizzes.length) {
+        el.innerHTML = `<div class="dash-empty">
+            <i class="bi bi-patch-question"></i>
+            <p>No quizzes taken yet.</p>
+        </div>`;
+        return;
+    }
+    el.innerHTML = quizzes.map(q => `
+        <div class="quiz-result-item">
+            <div class="qr-score-circle ${q.passed ? 'passed' : 'failed'}">${q.percentage}%</div>
+            <div class="qr-info">
+                <div class="qr-title">${q.quiz_title}</div>
+                <div class="qr-meta">${q.score}/${q.total} correct &nbsp;•&nbsp; ${q.attempted_at}</div>
+            </div>
+            <span class="qr-badge ${q.passed ? 'passed' : 'failed'}">${q.passed ? '✓ Pass' : '✗ Fail'}</span>
+        </div>`).join('');
+}
+
+function renderCerts(courses) {
+    const el = document.getElementById('certsList');
+    const certsOnly = courses.filter(c => c.certificate_id);
+    if (!certsOnly.length) {
+        el.innerHTML = `<div class="dash-empty">
+            <i class="bi bi-award"></i>
+            <p>Complete a course to earn your first certificate!</p>
+        </div>`;
+        return;
+    }
+    el.innerHTML = certsOnly.map(c => `
+        <div class="cert-item">
+            <div class="cert-medal">🏆</div>
+            <div class="cert-info">
+                <div class="cert-course-name">${c.course_name}</div>
+                <div class="cert-date">Certificate ID: ${c.certificate_id}</div>
+            </div>
+            <button class="cert-view-btn" onclick="viewCert('${c.certificate_id}', '${c.course_name}')">
+                <i class="bi bi-eye-fill"></i> View
+            </button>
+        </div>`).join('');
+}
+
+async function viewCert(certId, courseName) {
+    const res = await fetch(`/get_certificate/?cert_id=${certId}`);
+    const data = await res.json();
+    if (data.status !== 'ok') return;
+
+    const modal = document.createElement('div');
+    modal.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:1rem;';
+    modal.innerHTML = `
+        <div style="background:white;border-radius:20px;width:100%;max-width:680px;max-height:90vh;overflow-y:auto;position:relative;animation:slideUp 0.3s ease;">
+            <button onclick="this.closest('[style]').remove()" style="position:absolute;top:1rem;right:1rem;background:#f1f5f9;border:none;border-radius:50%;width:36px;height:36px;cursor:pointer;font-size:0.9rem;color:#64748b;z-index:1;">✕</button>
+            <div style="background:linear-gradient(135deg,#0f172a,#1e1b4b);padding:3rem 2.5rem;text-align:center;border-radius:20px 20px 0 0;position:relative;overflow:hidden;">
+                <div style="position:absolute;inset:12px;border:2px solid rgba(255,255,255,0.1);border-radius:12px;pointer-events:none;"></div>
+                <div style="font-size:3rem;margin-bottom:0.5rem;">🏆</div>
+                <div style="font-size:0.75rem;font-weight:700;color:#a5b4fc;text-transform:uppercase;letter-spacing:3px;margin-bottom:1rem;">Certificate of Completion</div>
+                <div style="font-family:var(--font-display);font-size:1.8rem;font-weight:800;color:white;margin-bottom:0.5rem;">E-Learning Platform</div>
+                <div style="color:rgba(255,255,255,0.5);font-size:0.9rem;margin-bottom:1rem;">This is to certify that</div>
+                <div style="font-family:var(--font-display);font-size:2rem;font-weight:700;background:linear-gradient(135deg,#fbbf24,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:0.5rem;">${data.student_name}</div>
+                <div style="color:rgba(255,255,255,0.4);font-size:0.85rem;margin-bottom:0.3rem;">has successfully completed</div>
+                <div style="font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:white;margin-bottom:1.5rem;">${data.course_name}</div>
+                <div style="width:80px;height:3px;background:linear-gradient(90deg,#6366f1,#f59e0b);margin:0 auto 1.5rem;border-radius:999px;"></div>
+                <div style="display:flex;justify-content:center;gap:3rem;">
+                    <div style="text-align:center;">
+                        <div style="font-size:0.7rem;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.2rem;">Issue Date</div>
+                        <div style="font-size:0.88rem;font-weight:700;color:rgba(255,255,255,0.8);">${data.issued_at}</div>
+                    </div>
+                    <div style="text-align:center;">
+                        <div style="font-size:0.7rem;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.2rem;">Certificate ID</div>
+                        <div style="font-size:0.75rem;font-weight:700;color:rgba(255,255,255,0.8);">${data.certificate_id}</div>
+                    </div>
+                    <div style="text-align:center;">
+                        <div style="font-size:0.7rem;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.2rem;">Status</div>
+                        <div style="font-size:0.88rem;font-weight:700;color:#10b981;">✓ Verified</div>
+                    </div>
+                </div>
+            </div>
+            <div style="display:flex;gap:0.75rem;justify-content:center;padding:1.5rem;">
+                <button onclick="window.print()" style="display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1.75rem;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-size:0.88rem;font-family:var(--font-main);">
+                    <i class="bi bi-download"></i> Download / Print
+                </button>
+                <button onclick="this.closest('[style]').remove()" style="padding:0.75rem 1.75rem;background:#f1f5f9;border:none;border-radius:10px;font-weight:600;cursor:pointer;font-size:0.88rem;font-family:var(--font-main);">Close</button>
+            </div>
+        </div>`;
+    document.body.appendChild(modal);
+    modal.onclick = (e) => { if(e.target === modal) modal.remove(); };
+}
+</script>
+{% endblock %}

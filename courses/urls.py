@@ -10,6 +10,7 @@ urlpatterns = [
     path('request_page/', views.request_page, name='request_page'),
     path('enrolled_courses_page/', views.enrolled_courses_page, name='enrolled_courses_page'),
     path('contact/', views.contact_page, name='contact_page'),
+    path('dashboard/', views.dashboard_page, name='dashboard_page'),
 
     path('all_courses/', views.all_courses, name='all_courses'),
     path('student_info/', views.student_info, name='student_info'),
@@ -24,9 +25,8 @@ urlpatterns = [
     path('save_contact/', views.save_contact, name='save_contact'),
     path('get_quiz/', views.get_quiz, name='get_quiz'),
     path('submit_quiz/', views.submit_quiz, name='submit_quiz'),
-
-    # Progress & Certificate
     path('mark_lesson_complete/', views.mark_lesson_complete, name='mark_lesson_complete'),
     path('get_progress/', views.get_progress, name='get_progress'),
     path('get_certificate/', views.get_certificate, name='get_certificate'),
+    path('get_dashboard/', views.get_dashboard, name='get_dashboard'),
 ]
