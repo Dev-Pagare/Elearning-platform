@@ -29,4 +29,8 @@ urlpatterns = [
     path('get_progress/', views.get_progress, name='get_progress'),
     path('get_certificate/', views.get_certificate, name='get_certificate'),
     path('get_dashboard/', views.get_dashboard, name='get_dashboard'),
+
+    # Notifications
+    path('get_notifications/', views.get_notifications, name='get_notifications'),
+    path('mark_notifications_read/', views.mark_notifications_read, name='mark_notifications_read'),
 ]

@@ -170,7 +170,6 @@ class QuizResult(models.Model):
         return f"{self.student.name} - {self.quiz.title} - {self.score}/{self.total}"
 
 
-# ── PROGRESS TRACKING ──────────────────────────────
 class LessonProgress(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='lesson_progress')
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='progress')
@@ -183,7 +182,6 @@ class LessonProgress(models.Model):
         return f"{self.student.name} — {self.lesson.title}"
 
 
-# ── CERTIFICATE ────────────────────────────────────
 class Certificate(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='certificates')
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='certificates')
@@ -195,3 +193,26 @@ class Certificate(models.Model):
 
     def __str__(self):
         return f"{self.student.name} — {self.course.course_name}"
+
+
+# ── NOTIFICATIONS ──────────────────────────────────
+class Notification(models.Model):
+    NOTIF_TYPES = [
+        ('approved',    'Course Approved'),
+        ('rejected',    'Course Rejected'),
+        ('certificate', 'Certificate Earned'),
+        ('quiz_passed', 'Quiz Passed'),
+        ('enrolled',    'Course Enrolled'),
+    ]
+    student   = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='notifications')
+    notif_type = models.CharField(max_length=20, choices=NOTIF_TYPES)
+    title     = models.CharField(max_length=200)
+    message   = models.TextField()
+    is_read   = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.student.name} — {self.title}"

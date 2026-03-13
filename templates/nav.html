@@ -31,16 +31,50 @@
                 <li class="nav-item"><a class="nav-link nav-pill" href="/contact/">Contact</a></li>
                 <li class="nav-item"><a class="nav-link nav-pill" href="{% url 'enrolled_courses_page' %}">My Courses</a></li>
             </ul>
-            <!-- Logged OUT buttons -->
+
+            <!-- Logged OUT -->
             <div class="d-flex align-items-center gap-2 mt-2 mt-lg-0" id="nav-auth-btns">
                 <a href="{% url 'login_page' %}" class="btn btn-nav-outline">Login</a>
                 <a href="{% url 'signup_page' %}" class="btn btn-nav-solid">Sign Up</a>
             </div>
-            <!-- Logged IN buttons -->
+
+            <!-- Logged IN -->
             <div class="d-flex align-items-center gap-2 mt-2 mt-lg-0 d-none" id="nav-user-btns">
-                <a href="{% url 'dashboard_page' %}" class="btn btn-nav-dashboard">
-                    <i class="bi bi-grid-fill me-1"></i>Dashboard
+
+                <!-- Dashboard -->
+                <a href="{% url 'dashboard_page' %}"
+                   style="background:rgba(99,102,241,0.2);color:#a5b4fc;border:1.5px solid rgba(99,102,241,0.4);border-radius:10px;padding:0.45rem 1rem;font-size:0.82rem;font-weight:700;text-decoration:none;display:flex;align-items:center;gap:0.4rem;">
+                    <i class="bi bi-grid-fill"></i> Dashboard
                 </a>
+
+                <!-- 🔔 Notification Bell -->
+                <div style="position:relative;" id="notifWrapper">
+                    <button id="notifBell"
+                        onclick="toggleNotifDropdown()"
+                        style="background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.15);border-radius:10px;padding:0.45rem 0.75rem;cursor:pointer;color:rgba(255,255,255,0.7);font-size:1rem;display:flex;align-items:center;position:relative;transition:all 0.2s;">
+                        <i class="bi bi-bell-fill"></i>
+                        <span id="notifBadge"
+                              style="display:none;position:absolute;top:-6px;right:-6px;background:#ef4444;color:white;border-radius:999px;font-size:0.65rem;font-weight:800;min-width:18px;height:18px;display:none;align-items:center;justify-content:center;padding:0 4px;">
+                            0
+                        </span>
+                    </button>
+
+                    <!-- Dropdown -->
+                    <div id="notifDropdown"
+                         style="display:none;position:absolute;right:0;top:calc(100% + 10px);width:340px;background:white;border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,0.18);z-index:9999;overflow:hidden;border:1px solid #e5e7eb;">
+                        <div style="padding:1rem 1.25rem;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;">
+                            <span style="font-family:var(--font-display);font-size:0.95rem;font-weight:700;color:#0f172a;">Notifications</span>
+                            <button onclick="markAllRead()" style="background:none;border:none;font-size:0.75rem;font-weight:600;color:#6366f1;cursor:pointer;padding:0;">Mark all read</button>
+                        </div>
+                        <div id="notifList" style="max-height:360px;overflow-y:auto;">
+                            <div style="padding:2rem;text-align:center;color:#9ca3af;font-size:0.85rem;">
+                                <i class="bi bi-bell" style="font-size:2rem;display:block;margin-bottom:0.5rem;opacity:0.3;"></i>
+                                Loading...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <a href="{% url 'profile_page' %}" class="btn btn-nav-profile">
                     <i class="bi bi-person-circle me-1"></i>Profile
                 </a>
@@ -120,17 +154,119 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    const navEl = document.getElementById('mainNav');
-    window.addEventListener('scroll', () => navEl.classList.toggle('scrolled', window.scrollY > 40));
-    (function () {
-        const token = localStorage.getItem('token');
-        document.getElementById('nav-auth-btns').classList.toggle('d-none', !!token);
-        document.getElementById('nav-user-btns').classList.toggle('d-none', !token);
-    })();
-    function logoutUser() {
-        localStorage.removeItem('token');
-        window.location.href = "{% url 'index' %}";
+// Navbar scroll
+const navEl = document.getElementById('mainNav');
+window.addEventListener('scroll', () => navEl.classList.toggle('scrolled', window.scrollY > 40));
+
+// Show/hide login buttons
+(function () {
+    const token = localStorage.getItem('token');
+    document.getElementById('nav-auth-btns').classList.toggle('d-none', !!token);
+    document.getElementById('nav-user-btns').classList.toggle('d-none', !token);
+    if (token) loadNotifications();
+})();
+
+function logoutUser() {
+    localStorage.removeItem('token');
+    window.location.href = "{% url 'index' %}";
+}
+
+// ── NOTIFICATIONS ─────────────────────────────────
+function getUsername() {
+    try {
+        const tok = localStorage.getItem('token');
+        if (!tok) return '';
+        return JSON.parse(atob(tok.split('.')[1])).username || '';
+    } catch(e) { return ''; }
+}
+
+const notifIcons = {
+    approved:    { icon: 'bi-check-circle-fill',  color: '#10b981' },
+    rejected:    { icon: 'bi-x-circle-fill',       color: '#ef4444' },
+    certificate: { icon: 'bi-award-fill',           color: '#f59e0b' },
+    quiz_passed: { icon: 'bi-patch-check-fill',     color: '#6366f1' },
+    enrolled:    { icon: 'bi-bookmark-plus-fill',   color: '#06b6d4' },
+};
+
+async function loadNotifications() {
+    const uname = getUsername();
+    if (!uname) return;
+    try {
+        const res  = await fetch(`/get_notifications/?username=${uname}`);
+        const data = await res.json();
+        renderNotifications(data.notifications);
+        updateBadge(data.unread_count);
+    } catch(e) {}
+}
+
+function updateBadge(count) {
+    const badge = document.getElementById('notifBadge');
+    if (count > 0) {
+        badge.textContent = count > 9 ? '9+' : count;
+        badge.style.display = 'flex';
+    } else {
+        badge.style.display = 'none';
     }
+}
+
+function renderNotifications(notifs) {
+    const list = document.getElementById('notifList');
+    if (!notifs.length) {
+        list.innerHTML = `<div style="padding:2rem;text-align:center;color:#9ca3af;font-size:0.85rem;">
+            <i class="bi bi-bell" style="font-size:2rem;display:block;margin-bottom:0.5rem;opacity:0.3;"></i>
+            No notifications yet
+        </div>`;
+        return;
+    }
+    list.innerHTML = notifs.map(n => {
+        const ic = notifIcons[n.type] || { icon: 'bi-bell-fill', color: '#6366f1' };
+        const bg = n.is_read ? 'white' : '#f5f3ff';
+        return `
+        <div style="display:flex;gap:0.85rem;padding:0.9rem 1.25rem;border-bottom:1px solid #f8fafc;background:${bg};transition:background 0.2s;">
+            <div style="width:36px;height:36px;border-radius:50%;background:${ic.color}20;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;">
+                <i class="bi ${ic.icon}" style="color:${ic.color};font-size:0.9rem;"></i>
+            </div>
+            <div style="flex:1;min-width:0;">
+                <div style="font-size:0.83rem;font-weight:700;color:#1f2937;margin-bottom:0.15rem;">${n.title}</div>
+                <div style="font-size:0.78rem;color:#6b7280;line-height:1.4;">${n.message}</div>
+                <div style="font-size:0.7rem;color:#9ca3af;margin-top:0.3rem;">${n.created_at}</div>
+            </div>
+            ${!n.is_read ? '<div style="width:8px;height:8px;background:#6366f1;border-radius:50%;flex-shrink:0;margin-top:6px;"></div>' : ''}
+        </div>`;
+    }).join('');
+}
+
+function toggleNotifDropdown() {
+    const dd = document.getElementById('notifDropdown');
+    const isOpen = dd.style.display === 'block';
+    dd.style.display = isOpen ? 'none' : 'block';
+    if (!isOpen) loadNotifications();
+}
+
+async function markAllRead() {
+    const uname = getUsername();
+    if (!uname) return;
+    await fetch('/mark_notifications_read/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: uname })
+    });
+    updateBadge(0);
+    await loadNotifications();
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(e) {
+    const wrapper = document.getElementById('notifWrapper');
+    if (wrapper && !wrapper.contains(e.target)) {
+        document.getElementById('notifDropdown').style.display = 'none';
+    }
+});
+
+// Auto-refresh every 30 seconds
+setInterval(() => {
+    if (localStorage.getItem('token')) loadNotifications();
+}, 30000);
 </script>
 </body>
 </html>

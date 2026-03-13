@@ -3,7 +3,9 @@ from django.http import JsonResponse
 from django.core import serializers
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
-from .models import Course, Student, CourseRequest, Chapter, Lesson, ContactMessage, Quiz, Question, QuizResult, LessonProgress, Certificate
+from .models import (Course, Student, CourseRequest, Chapter, Lesson,
+                     ContactMessage, Quiz, Question, QuizResult,
+                     LessonProgress, Certificate, Notification)
 import json
 import jwt
 import uuid
@@ -129,6 +131,13 @@ def creat_course_request(request):
             if CourseRequest.objects.filter(course=course, student=student).exists():
                 return JsonResponse({"status": "request already exists"})
             CourseRequest.objects.create(course=course, student=student, reason=reason)
+            # Notification: request submitted
+            Notification.objects.create(
+                student=student,
+                notif_type='enrolled',
+                title='Enrollment Request Submitted',
+                message=f'Your request for "{course.course_name}" has been submitted. Please wait for admin approval.',
+            )
             return JsonResponse({"status": "success"})
         except Exception as e:
             return JsonResponse({"status": "error", "message": str(e)})
@@ -238,10 +247,8 @@ def get_quiz(request):
             'id': q.id,
             'text': q.question_text,
             'options': {
-                'A': q.option_a,
-                'B': q.option_b,
-                'C': q.option_c,
-                'D': q.option_d,
+                'A': q.option_a, 'B': q.option_b,
+                'C': q.option_c, 'D': q.option_d,
             }
         })
 
@@ -258,12 +265,12 @@ def get_quiz(request):
 def submit_quiz(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        quiz_id = data.get('quiz_id')
-        username = data.get('username')
-        answers = data.get('answers', {})
+        quiz_id   = data.get('quiz_id')
+        username  = data.get('username')
+        answers   = data.get('answers', {})
 
         try:
-            quiz = Quiz.objects.get(id=quiz_id)
+            quiz    = Quiz.objects.get(id=quiz_id)
             student = Student.objects.get(username=username)
         except (Quiz.DoesNotExist, Student.DoesNotExist):
             return JsonResponse({'error': 'Invalid data'}, status=400)
@@ -275,7 +282,7 @@ def submit_quiz(request):
 
         for q in questions:
             user_ans = answers.get(str(q.id), '').upper()
-            correct = q.correct_option.upper()
+            correct  = q.correct_option.upper()
             is_correct = user_ans == correct
             if is_correct:
                 score += 1
@@ -284,35 +291,35 @@ def submit_quiz(request):
                 'your_answer': user_ans,
                 'correct_answer': correct,
                 'is_correct': is_correct,
-                'options': {
-                    'A': q.option_a, 'B': q.option_b,
-                    'C': q.option_c, 'D': q.option_d
-                }
+                'options': {'A': q.option_a, 'B': q.option_b, 'C': q.option_c, 'D': q.option_d}
             })
 
         percentage = int((score / total) * 100) if total > 0 else 0
         passed = percentage >= quiz.pass_marks
 
-        QuizResult.objects.create(
-            student=student, quiz=quiz,
-            score=score, total=total, passed=passed
-        )
+        QuizResult.objects.create(student=student, quiz=quiz, score=score, total=total, passed=passed)
+
+        # Notification: quiz passed
+        if passed:
+            Notification.objects.create(
+                student=student,
+                notif_type='quiz_passed',
+                title='Quiz Passed! 🎉',
+                message=f'You passed "{quiz.title}" with {percentage}% ({score}/{total} correct).',
+            )
 
         return JsonResponse({
-            'score': score,
-            'total': total,
-            'percentage': percentage,
-            'passed': passed,
-            'pass_percentage': quiz.pass_marks,
-            'results': results
+            'score': score, 'total': total,
+            'percentage': percentage, 'passed': passed,
+            'pass_percentage': quiz.pass_marks, 'results': results
         })
 
 @csrf_exempt
 def mark_lesson_complete(request):
     if request.method == 'POST':
         try:
-            data = json.loads(request.body)
-            username = data.get('username')
+            data      = json.loads(request.body)
+            username  = data.get('username')
             lesson_id = data.get('lesson_id')
             course_id = data.get('course_id')
 
@@ -320,35 +327,36 @@ def mark_lesson_complete(request):
                 return JsonResponse({'error': 'Username missing'}, status=400)
 
             student = Student.objects.get(username=username)
-            lesson = Lesson.objects.get(id=lesson_id)
-            course = Course.objects.get(pk=course_id)
+            lesson  = Lesson.objects.get(id=lesson_id)
+            course  = Course.objects.get(pk=course_id)
 
             LessonProgress.objects.get_or_create(student=student, lesson=lesson)
 
             total_lessons = Lesson.objects.filter(chapter__course=course).count()
-            completed = LessonProgress.objects.filter(
-                student=student, lesson__chapter__course=course
-            ).count()
-
-            percentage = int((completed / total_lessons) * 100) if total_lessons > 0 else 0
+            completed     = LessonProgress.objects.filter(student=student, lesson__chapter__course=course).count()
+            percentage    = int((completed / total_lessons) * 100) if total_lessons > 0 else 0
             course_complete = (completed == total_lessons)
 
             cert_id = None
             if course_complete:
                 cert, created = Certificate.objects.get_or_create(
-                    student=student,
-                    course=course,
+                    student=student, course=course,
                     defaults={'certificate_id': 'CERT-' + uuid.uuid4().hex[:10].upper()}
                 )
                 cert_id = cert.certificate_id
+                # Notification: certificate earned
+                if created:
+                    Notification.objects.create(
+                        student=student,
+                        notif_type='certificate',
+                        title='Certificate Earned! 🏆',
+                        message=f'Congratulations! You completed "{course.course_name}" and earned a certificate.',
+                    )
 
             return JsonResponse({
-                'status': 'ok',
-                'completed': completed,
-                'total': total_lessons,
-                'percentage': percentage,
-                'course_complete': course_complete,
-                'certificate_id': cert_id,
+                'status': 'ok', 'completed': completed,
+                'total': total_lessons, 'percentage': percentage,
+                'course_complete': course_complete, 'certificate_id': cert_id,
             })
         except Student.DoesNotExist:
             return JsonResponse({'error': 'Student not found'}, status=400)
@@ -359,16 +367,15 @@ def mark_lesson_complete(request):
 
 @csrf_exempt
 def get_progress(request):
-    username = request.GET.get('username')
+    username  = request.GET.get('username')
     course_id = request.GET.get('course_id')
     try:
-        student = Student.objects.get(username=username)
-        course = Course.objects.get(pk=course_id)
+        student  = Student.objects.get(username=username)
+        course   = Course.objects.get(pk=course_id)
         total_lessons = Lesson.objects.filter(chapter__course=course).count()
         completed_ids = list(
-            LessonProgress.objects.filter(
-                student=student, lesson__chapter__course=course
-            ).values_list('lesson_id', flat=True)
+            LessonProgress.objects.filter(student=student, lesson__chapter__course=course)
+            .values_list('lesson_id', flat=True)
         )
         percentage = int((len(completed_ids) / total_lessons) * 100) if total_lessons > 0 else 0
         cert = Certificate.objects.filter(student=student, course=course).first()
@@ -378,7 +385,7 @@ def get_progress(request):
             'percentage': percentage,
             'certificate_id': cert.certificate_id if cert else None,
         })
-    except Exception as e:
+    except Exception:
         return JsonResponse({'completed_lesson_ids': [], 'total': 0, 'percentage': 0, 'certificate_id': None})
 
 @csrf_exempt
@@ -389,7 +396,7 @@ def get_certificate(request):
         return JsonResponse({
             'status': 'ok',
             'student_name': cert.student.name,
-            'course_name': cert.course.course_name,
+            'course_name':  cert.course.course_name,
             'certificate_id': cert.certificate_id,
             'issued_at': cert.issued_at.strftime('%B %d, %Y'),
         })
@@ -399,58 +406,43 @@ def get_certificate(request):
 def get_dashboard(request):
     username = request.GET.get('username')
     try:
-        student = Student.objects.get(username=username)
-
-        # Enrolled courses + progress
+        student  = Student.objects.get(username=username)
         enrolled = student.enrolled_courses.all()
         courses_data = []
         for course in enrolled:
             total_lessons = Lesson.objects.filter(chapter__course=course).count()
-            completed = LessonProgress.objects.filter(
-                student=student, lesson__chapter__course=course
-            ).count()
-            percentage = int((completed / total_lessons) * 100) if total_lessons > 0 else 0
+            completed     = LessonProgress.objects.filter(student=student, lesson__chapter__course=course).count()
+            percentage    = int((completed / total_lessons) * 100) if total_lessons > 0 else 0
             cert = Certificate.objects.filter(student=student, course=course).first()
             try:
                 image = course.image_url.url
             except:
                 image = ''
             courses_data.append({
-                'course_id': course.pk,
-                'course_name': course.course_name,
-                'category': course.category,
-                'image_url': image,
-                'total_lessons': total_lessons,
-                'completed_lessons': completed,
+                'course_id': course.pk, 'course_name': course.course_name,
+                'category': course.category, 'image_url': image,
+                'total_lessons': total_lessons, 'completed_lessons': completed,
                 'percentage': percentage,
                 'certificate_id': cert.certificate_id if cert else None,
             })
 
-        # Stats
-        total_enrolled = enrolled.count()
-        total_completed = sum(1 for c in courses_data if c['percentage'] == 100)
-        total_certificates = Certificate.objects.filter(student=student).count()
+        total_enrolled       = enrolled.count()
+        total_completed      = sum(1 for c in courses_data if c['percentage'] == 100)
+        total_certificates   = Certificate.objects.filter(student=student).count()
         total_quizzes_passed = QuizResult.objects.filter(student=student, passed=True).count()
-        total_lessons_done = LessonProgress.objects.filter(student=student).count()
+        total_lessons_done   = LessonProgress.objects.filter(student=student).count()
 
-        # Recent quiz results
         recent_quizzes = QuizResult.objects.filter(student=student).order_by('-attempted_at')[:5]
-        quiz_data = []
-        for qr in recent_quizzes:
-            quiz_data.append({
-                'quiz_title': qr.quiz.title,
-                'score': qr.score,
-                'total': qr.total,
-                'percentage': int((qr.score / qr.total) * 100) if qr.total > 0 else 0,
-                'passed': qr.passed,
-                'attempted_at': qr.attempted_at.strftime('%b %d, %Y'),
-            })
+        quiz_data = [{
+            'quiz_title': qr.quiz.title, 'score': qr.score, 'total': qr.total,
+            'percentage': int((qr.score / qr.total) * 100) if qr.total > 0 else 0,
+            'passed': qr.passed, 'attempted_at': qr.attempted_at.strftime('%b %d, %Y'),
+        } for qr in recent_quizzes]
 
         return JsonResponse({
             'student_name': student.name,
             'stats': {
-                'total_enrolled': total_enrolled,
-                'total_completed': total_completed,
+                'total_enrolled': total_enrolled, 'total_completed': total_completed,
                 'total_certificates': total_certificates,
                 'total_quizzes_passed': total_quizzes_passed,
                 'total_lessons_done': total_lessons_done,
@@ -462,3 +454,35 @@ def get_dashboard(request):
         return JsonResponse({'error': 'Student not found'}, status=404)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+
+# ── NOTIFICATIONS ──────────────────────────────────
+def get_notifications(request):
+    username = request.GET.get('username')
+    try:
+        student = Student.objects.get(username=username)
+        notifs  = Notification.objects.filter(student=student)[:20]
+        unread  = Notification.objects.filter(student=student, is_read=False).count()
+        data = [{
+            'id':         n.id,
+            'type':       n.notif_type,
+            'title':      n.title,
+            'message':    n.message,
+            'is_read':    n.is_read,
+            'created_at': n.created_at.strftime('%b %d, %Y %I:%M %p'),
+        } for n in notifs]
+        return JsonResponse({'notifications': data, 'unread_count': unread})
+    except Student.DoesNotExist:
+        return JsonResponse({'notifications': [], 'unread_count': 0})
+
+@csrf_exempt
+def mark_notifications_read(request):
+    if request.method == 'POST':
+        data     = json.loads(request.body)
+        username = data.get('username')
+        try:
+            student = Student.objects.get(username=username)
+            Notification.objects.filter(student=student, is_read=False).update(is_read=True)
+            return JsonResponse({'status': 'ok'})
+        except Student.DoesNotExist:
+            return JsonResponse({'status': 'error'}, status=400)
