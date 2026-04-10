@@ -64,16 +64,26 @@ class SystemAdminAdmin(admin.ModelAdmin):
 
 @admin.register(ContactMessage)
 class ContactMessageAdmin(admin.ModelAdmin):
-    list_display = ('name', 'email', 'subject', 'submitted_at', 'is_read')
-    list_filter = ('is_read',)
+    list_display = ('name', 'email', 'subject', 'submitted_at', 'is_read', 'is_replied')
+    list_filter = ('is_read', 'is_replied')
     search_fields = ('name', 'email', 'subject')
     readonly_fields = ('name', 'email', 'subject', 'message', 'submitted_at')
-    actions = ['mark_as_read']
+    fields = ('name', 'email', 'subject', 'message', 'submitted_at', 'is_read', 'admin_reply', 'is_replied')
+    actions = ['mark_as_read', 'reply_to_message']
 
     def mark_as_read(self, request, queryset):
         queryset.update(is_read=True)
         self.message_user(request, "Messages marked as read!")
     mark_as_read.short_description = "✅ Mark as Read"
+
+    def reply_to_message(self, request, queryset):
+        if queryset.count() != 1:
+            self.message_user(request, "Please select exactly one message to reply.", level='warning')
+            return
+        msg = queryset.first()
+        from django.http import HttpResponseRedirect
+        return HttpResponseRedirect(f'/admin_reply/{msg.pk}/')
+    reply_to_message.short_description = "✉️ Reply via EmailJS"
 
 
 class QuestionInline(admin.StackedInline):

@@ -1,4 +1,5 @@
 {% extends 'nav.html' %}{% load static %}{% block content %}
+
 <div class="course-hero">
     <div class="container">
         <div class="course-hero-inner">
@@ -6,22 +7,105 @@
             <div class="course-hero-text">
                 <div class="course-category-badge" id="course-category">Course</div>
                 <h1 class="course-hero-title" id="course-title">Loading...</h1>
+                
+                <div id="heroRating" style="display:none;align-items:center;gap:0.5rem;margin-top:0.6rem;">
+                    <span id="heroStars" style="color:#fbbf24;font-size:1rem;"></span>
+                    <span id="heroAvg" style="font-weight:800;font-size:1rem;color:#fff;"></span>
+                    <span id="heroTotal" style="font-size:0.82rem;color:rgba(255,255,255,0.55);"></span>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
 <div class="course-content">
     <div class="container">
-        <div class="content-layout">
-            <div class="description-card">
-                <h3><i class="bi bi-journal-text me-2 text-primary"></i>Course Description</h3>
-                <p class="description-text" id="course-description">Loading...</p>
+        <div class="content-layout" style="align-items:flex-start;">
+
+            
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1.5rem;">
+
+                
+                <div class="description-card">
+                    <h3><i class="bi bi-journal-text me-2 text-primary"></i>Course Description</h3>
+                    <p class="description-text" id="course-description">Loading...</p>
+                </div>
+
+                
+                <div style="background:white;border-radius:20px;padding:2rem;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
+
+                    <h3 style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:#0f172a;margin:0 0 1.25rem;">
+                        <i class="bi bi-star-fill me-2" style="color:#f59e0b;"></i>Student Reviews
+                    </h3>
+
+                    
+                    <div id="ratingsSummary" style="display:none;align-items:center;gap:1.5rem;flex-wrap:wrap;
+                         padding:1.25rem;background:#f8fafc;border-radius:14px;margin-bottom:1.5rem;">
+                        <div style="font-family:var(--font-display);font-size:3.5rem;font-weight:800;color:#0f172a;line-height:1;"
+                             id="bigRating">0</div>
+                        <div>
+                            <div id="bigStars" style="color:#f59e0b;font-size:1.2rem;margin-bottom:0.2rem;"></div>
+                            <div id="bigTotal" style="font-size:0.8rem;color:#6b7280;"></div>
+                        </div>
+                        <div id="ratingBars" style="flex:1;min-width:150px;"></div>
+                    </div>
+
+                    
+                    <div id="writeReviewWrap" style="display:none;margin-bottom:1.5rem;">
+                        <div style="background:#f8fafc;border:1.5px solid #e5e7eb;border-radius:14px;padding:1.25rem;">
+                            <div style="font-family:var(--font-display);font-size:0.95rem;font-weight:700;
+                                        color:#0f172a;margin-bottom:1rem;">✍️ Write a Review</div>
+
+                            
+                            <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.85rem;">
+                                <span style="font-size:0.85rem;color:#6b7280;font-weight:600;">Your Rating:</span>
+                                <div id="starPicker" style="display:flex;gap:0.2rem;cursor:pointer;"></div>
+                            </div>
+
+                            <textarea id="reviewText" placeholder="Share your experience about this course..."
+                                style="width:100%;padding:0.85rem 1rem;border:1.5px solid #e5e7eb;border-radius:10px;
+                                       font-size:0.88rem;resize:vertical;min-height:100px;outline:none;box-sizing:border-box;
+                                       font-family:var(--font-main);transition:border 0.2s;"
+                                onfocus="this.style.borderColor='#6366f1'"
+                                onblur="this.style.borderColor='#e5e7eb'"></textarea>
+
+                            <button onclick="submitReview()"
+                                style="margin-top:0.75rem;padding:0.65rem 1.5rem;
+                                       background:linear-gradient(135deg,#6366f1,#8b5cf6);
+                                       color:white;border:none;border-radius:10px;font-weight:700;
+                                       font-size:0.85rem;cursor:pointer;font-family:var(--font-main);
+                                       display:flex;align-items:center;gap:0.4rem;transition:opacity 0.2s;"
+                                onmouseover="this.style.opacity='0.88'"
+                                onmouseout="this.style.opacity='1'">
+                                <i class="bi bi-send-fill"></i> Submit Review
+                            </button>
+                        </div>
+                    </div>
+
+                    
+                    <div id="reviewList">
+                        <div style="text-align:center;padding:2rem;color:#9ca3af;font-size:0.85rem;">
+                            <i class="bi bi-star" style="font-size:2rem;display:block;margin-bottom:0.5rem;opacity:0.3;"></i>
+                            Loading reviews...
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            
             <div class="sidebar-card">
                 <img id="sidebar-image" src="" alt="Course" class="sidebar-img">
                 <div class="sidebar-body">
                     <p class="sidebar-title" id="sidebar-title">Loading...</p>
                     <p class="sidebar-price" id="sidebar-price"></p>
+
+                    
+                    <div id="sidebarRating" style="display:none;align-items:center;gap:0.4rem;margin-bottom:0.75rem;">
+                        <span id="sidebarStars" style="color:#f59e0b;font-size:0.82rem;"></span>
+                        <span id="sidebarAvg" style="font-weight:700;font-size:0.82rem;color:#1f2937;"></span>
+                        <span id="sidebarTotal" style="font-size:0.75rem;color:#9ca3af;"></span>
+                    </div>
+
                     <a id="request-link" href="#" class="btn-enroll">
                         <i class="bi bi-lightning-charge-fill"></i> Request Enrollment
                     </a>
@@ -31,21 +115,191 @@
         </div>
     </div>
 </div>
+
 <script>
-const params=new URLSearchParams(window.location.search),courseId=params.get('course_id');
-if(!courseId) document.getElementById('request-link').style.display='none';
-else document.getElementById('request-link').href=`/request_page/?course_id=${courseId}`;
-fetch(`/get_course/?course_id=${courseId}`).then(r=>r.json()).then(d=>{
-    const c=d.course;
-    document.getElementById('course-image').src=c.image_url;
-    document.getElementById('course-category').textContent=c.category||'Course';
-    document.getElementById('course-title').textContent=c.course_name;
-    document.getElementById('course-description').textContent=c.description||'No description available.';
-    document.getElementById('sidebar-image').src=c.image_url;
-    document.getElementById('sidebar-title').textContent=c.course_name;
-    const priceEl=document.getElementById('sidebar-price');
-    priceEl.textContent=c.price===0||c.price===0.0?'Free':'₹'+parseFloat(c.price).toFixed(0);
-    priceEl.style.color=c.price===0?'#10b981':'#6366f1';
-}).catch(()=>{document.getElementById('course-title').textContent='Course not found';});
+const params   = new URLSearchParams(window.location.search);
+const courseId = params.get('course_id');
+let selectedRating = 0;
+
+if (!courseId) document.getElementById('request-link').style.display = 'none';
+else document.getElementById('request-link').href = `/request_page/?course_id=${courseId}`;
+
+function getUsername() {
+    try {
+        const tok = localStorage.getItem('token');
+        if (!tok) return '';
+        return JSON.parse(atob(tok.split('.')[1])).username || '';
+    } catch(e) { return ''; }
+}
+
+function starsHTML(rating) {
+    let html = '';
+    for (let i = 1; i <= 5; i++) {
+        if (i <= Math.floor(rating))       html += '<i class="bi bi-star-fill"></i>';
+        else if (i - rating < 1)           html += '<i class="bi bi-star-half"></i>';
+        else                               html += '<i class="bi bi-star"></i>';
+    }
+    return html;
+}
+
+fetch(`/get_course/?course_id=${courseId}`)
+    .then(r => r.json())
+    .then(d => {
+        const c = d.course;
+        document.getElementById('course-image').src           = c.image_url;
+        document.getElementById('course-category').textContent = c.category || 'Course';
+        document.getElementById('course-title').textContent    = c.course_name;
+        document.getElementById('course-description').textContent = c.description || 'No description available.';
+        document.getElementById('sidebar-image').src           = c.image_url;
+        document.getElementById('sidebar-title').textContent   = c.course_name;
+
+        const priceEl = document.getElementById('sidebar-price');
+        const isFree  = !c.price || parseFloat(c.price) === 0;
+        priceEl.textContent  = isFree ? 'Free' : '₹' + parseFloat(c.price).toFixed(0);
+        priceEl.style.color  = isFree ? '#10b981' : '#6366f1';
+
+        if (c.total_reviews > 0) {
+            showHeroRating(c.avg_rating, c.total_reviews);
+            showSidebarRating(c.avg_rating, c.total_reviews);
+        }
+    })
+    .catch(() => { document.getElementById('course-title').textContent = 'Course not found'; });
+
+function showHeroRating(avg, total) {
+    const el = document.getElementById('heroRating');
+    el.style.display = 'flex';
+    document.getElementById('heroStars').innerHTML  = starsHTML(avg);
+    document.getElementById('heroAvg').textContent  = avg;
+    document.getElementById('heroTotal').textContent = `(${total} review${total !== 1 ? 's' : ''})`;
+}
+
+function showSidebarRating(avg, total) {
+    const el = document.getElementById('sidebarRating');
+    el.style.display = 'flex';
+    document.getElementById('sidebarStars').innerHTML  = starsHTML(avg);
+    document.getElementById('sidebarAvg').textContent  = avg;
+    document.getElementById('sidebarTotal').textContent = `(${total})`;
+}
+
+async function loadReviews() {
+    const uname = getUsername();
+    const res   = await fetch(`/get_reviews/?course_id=${courseId}&username=${uname}`);
+    const data  = await res.json();
+    renderReviews(data);
+}
+
+function renderReviews(data) {
+    if (data.total > 0) {
+        const sumEl = document.getElementById('ratingsSummary');
+        sumEl.style.display = 'flex';
+        document.getElementById('bigRating').textContent = data.avg_rating;
+        document.getElementById('bigStars').innerHTML    = starsHTML(data.avg_rating);
+        document.getElementById('bigTotal').textContent  = `${data.total} review${data.total !== 1 ? 's' : ''}`;
+
+        document.getElementById('ratingBars').innerHTML = [5,4,3,2,1].map(i => {
+            const cnt = data.breakdown[i] || 0;
+            const pct = data.total ? Math.round((cnt / data.total) * 100) : 0;
+            return `<div style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.3rem;">
+                <span style="font-size:0.72rem;font-weight:600;color:#374151;width:12px;text-align:right;">${i}</span>
+                <i class="bi bi-star-fill" style="color:#f59e0b;font-size:0.6rem;"></i>
+                <div style="flex:1;height:8px;background:#e5e7eb;border-radius:999px;overflow:hidden;">
+                    <div style="width:${pct}%;height:100%;background:linear-gradient(90deg,#f59e0b,#f97316);border-radius:999px;transition:width 0.5s;"></div>
+                </div>
+                <span style="font-size:0.7rem;color:#9ca3af;width:18px;">${cnt}</span>
+            </div>`;
+        }).join('');
+
+        showHeroRating(data.avg_rating, data.total);
+        showSidebarRating(data.avg_rating, data.total);
+    }
+
+    if (data.can_review) {
+        document.getElementById('writeReviewWrap').style.display = 'block';
+        buildStarPicker();
+        if (data.my_review) {
+            selectedRating = data.my_review.rating;
+            refreshStarPicker(selectedRating);
+            document.getElementById('reviewText').value = data.my_review.review;
+        }
+    }
+
+    const listEl = document.getElementById('reviewList');
+    if (!data.reviews.length) {
+        listEl.innerHTML = `<div style="text-align:center;padding:2.5rem 1rem;color:#9ca3af;">
+            <i class="bi bi-chat-square-text" style="font-size:2.5rem;display:block;margin-bottom:0.75rem;opacity:0.3;"></i>
+            <p style="font-size:0.85rem;margin:0;">No reviews yet. Be the first to review!</p>
+        </div>`;
+        return;
+    }
+
+    listEl.innerHTML = data.reviews.map(r => `
+        <div style="padding:1.1rem 0;border-bottom:1px solid #f1f5f9;">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:0.4rem;">
+                <div style="display:flex;align-items:center;gap:0.6rem;">
+                    <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);
+                                color:white;display:flex;align-items:center;justify-content:center;
+                                font-size:0.85rem;font-weight:700;flex-shrink:0;">
+                        ${r.student.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                        <div style="font-size:0.88rem;font-weight:700;color:#1f2937;">
+                            ${r.student}
+                            ${r.is_mine ? '<span style="font-size:0.68rem;font-weight:700;background:#eef2ff;color:#6366f1;padding:0.15rem 0.5rem;border-radius:999px;margin-left:0.35rem;">You</span>' : ''}
+                        </div>
+                        <div style="font-size:0.72rem;color:#9ca3af;">${r.created_at}</div>
+                    </div>
+                </div>
+                <div style="color:#f59e0b;font-size:0.82rem;">${starsHTML(r.rating)}</div>
+            </div>
+            ${r.review ? `<p style="font-size:0.85rem;color:#4b5563;line-height:1.65;margin:0.35rem 0 0;">${r.review}</p>` : ''}
+        </div>`).join('');
+}
+
+function buildStarPicker() {
+    const picker = document.getElementById('starPicker');
+    picker.innerHTML = '';
+    for (let i = 1; i <= 5; i++) {
+        const star = document.createElement('i');
+        star.className = 'bi bi-star-fill';
+        star.style.cssText = 'font-size:1.4rem;color:#d1d5db;cursor:pointer;transition:color 0.15s;';
+        star.dataset.val = i;
+        star.addEventListener('mouseover', () => refreshStarPicker(i));
+        star.addEventListener('mouseout',  () => refreshStarPicker(selectedRating));
+        star.addEventListener('click',     () => { selectedRating = i; refreshStarPicker(i); });
+        picker.appendChild(star);
+    }
+}
+
+function refreshStarPicker(val) {
+    document.querySelectorAll('#starPicker i').forEach(s => {
+        s.style.color = parseInt(s.dataset.val) <= val ? '#f59e0b' : '#d1d5db';
+    });
+}
+
+async function submitReview() {
+    if (!selectedRating) { alert('Please select a star rating first!'); return; }
+    const uname = getUsername();
+    if (!uname) { alert('Please login to submit a review.'); return; }
+
+    const res  = await fetch('/submit_review/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            username:  uname,
+            course_id: courseId,
+            rating:    selectedRating,
+            review:    document.getElementById('reviewText').value,
+        })
+    });
+    const data = await res.json();
+    if (data.status === 'ok') {
+        alert(data.created ? '✅ Review submitted successfully!' : '✅ Review updated successfully!');
+        loadReviews();
+    } else {
+        alert('Error: ' + (data.error || 'Something went wrong.'));
+    }
+}
+
+loadReviews();
 </script>
 {% endblock %}

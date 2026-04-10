@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel | E-Learning</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a1628;--bg2:#0d1f3c;--bg3:#0f2a4a;
+  --sidebar:#060e1c;--sidebar-w:260px;
+  --primary:#6366f1;--primary-light:rgba(99,102,241,0.15);
+  --accent:#8b5cf6;
+  --success:#10b981;--warning:#f59e0b;--danger:#ef4444;--info:#06b6d4;
+  --border:rgba(255,255,255,0.09);
+  --text:rgba(255,255,255,0.88);--muted:rgba(255,255,255,0.45);
+  --card:rgba(255,255,255,0.05);
+  --radius:16px;--radius-sm:10px;
+  --gradient:linear-gradient(135deg,#6366f1,#8b5cf6);
+}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'Inter',sans-serif;background:linear-gradient(135deg,var(--bg),var(--bg2),var(--bg3));
+  color:var(--text);display:flex;}
+
+
+.sidebar{
+  width:var(--sidebar-w);min-width:var(--sidebar-w);height:100vh;overflow-y:auto;
+  background:var(--sidebar);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;position:sticky;top:0;flex-shrink:0;
+  scrollbar-width:none;
+}
+.sidebar::-webkit-scrollbar{display:none;}
+.sidebar-header{padding:1.5rem 1.25rem 1rem;border-bottom:1px solid var(--border);}
+.brand{display:flex;align-items:center;gap:0.75rem;}
+.brand-icon{width:40px;height:40px;background:var(--gradient);border-radius:12px;
+  display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:white;flex-shrink:0;}
+.brand-name{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:700;color:white;}
+.brand-name span{color:#a5b4fc;}
+.admin-badge{font-size:0.68rem;color:var(--muted);margin-top:1rem;padding:0.35rem 0.75rem;
+  background:rgba(255,255,255,0.05);border-radius:6px;text-align:center;letter-spacing:1px;text-transform:uppercase;}
+
+.nav-section{font-size:0.65rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--muted);padding:1rem 1.25rem 0.4rem;}
+.nav-link{display:flex;align-items:center;gap:0.75rem;padding:0.7rem 1.25rem;
+  color:var(--muted);text-decoration:none;font-size:0.84rem;font-weight:500;
+  border-radius:0;transition:all 0.2s;cursor:pointer;border:none;background:none;width:100%;text-align:left;}
+.nav-link i{font-size:1rem;width:20px;text-align:center;flex-shrink:0;}
+.nav-link:hover,.nav-link.active{background:rgba(99,102,241,0.12);color:white;}
+.nav-link.active{border-left:3px solid var(--primary);color:#a5b4fc;}
+.nav-link .badge{margin-left:auto;background:#ef4444;color:white;font-size:0.64rem;
+  font-weight:700;padding:0.15rem 0.5rem;border-radius:999px;}
+
+.sidebar-footer{margin-top:auto;padding:1rem 1.25rem;border-top:1px solid var(--border);}
+.admin-info{display:flex;align-items:center;gap:0.65rem;margin-bottom:0.75rem;}
+.admin-avatar{width:36px;height:36px;background:var(--gradient);border-radius:10px;
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.95rem;color:white;flex-shrink:0;}
+.admin-info-text .name{font-size:0.84rem;font-weight:600;color:white;}
+.admin-info-text .role{font-size:0.7rem;color:var(--muted);}
+.btn-logout{width:100%;padding:0.6rem;background:rgba(239,68,68,0.1);color:#fca5a5;
+  border:1px solid rgba(239,68,68,0.2);border-radius:var(--radius-sm);font-family:'Inter',sans-serif;
+  font-size:0.8rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;
+  transition:all 0.2s;}
+.btn-logout:hover{background:rgba(239,68,68,0.2);color:white;}
+
+
+.main{flex:1;height:100vh;overflow-y:auto;display:flex;flex-direction:column;}
+.topbar{background:rgba(6,14,28,0.8);border-bottom:1px solid var(--border);
+  padding:0.9rem 1.75rem;display:flex;align-items:center;justify-content:space-between;
+  backdrop-filter:blur(10px);position:sticky;top:0;z-index:100;flex-shrink:0;}
+.topbar-title{font-family:'Space Grotesk',sans-serif;font-size:1.05rem;font-weight:700;color:white;}
+.topbar-right{display:flex;align-items:center;gap:1rem;}
+.topbar-time{font-size:0.78rem;color:var(--muted);}
+.go-site{display:inline-flex;align-items:center;gap:0.4rem;padding:0.45rem 1rem;
+  background:rgba(99,102,241,0.15);color:#a5b4fc;border:1px solid rgba(99,102,241,0.3);
+  border-radius:var(--radius-sm);font-size:0.8rem;font-weight:600;text-decoration:none;transition:all 0.2s;}
+.go-site:hover{background:rgba(99,102,241,0.25);color:white;}
+
+.content{padding:1.75rem;flex:1;}
+
+
+.section{display:none;}
+.section.active{display:block;}
+
+
+.stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:1rem;margin-bottom:1.75rem;}
+@media(max-width:1200px){.stats-row{grid-template-columns:repeat(3,1fr);}}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:1.25rem 1.4rem;display:flex;align-items:flex-start;gap:1rem;
+  transition:transform 0.2s,box-shadow 0.2s;}
+.stat-card:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,0.3);}
+.stat-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;
+  justify-content:center;font-size:1.3rem;flex-shrink:0;}
+.stat-icon.blue{background:rgba(99,102,241,0.2);color:#a5b4fc;}
+.stat-icon.green{background:rgba(16,185,129,0.2);color:#6ee7b7;}
+.stat-icon.yellow{background:rgba(245,158,11,0.2);color:#fcd34d;}
+.stat-icon.red{background:rgba(239,68,68,0.2);color:#fca5a5;}
+.stat-icon.cyan{background:rgba(6,182,212,0.2);color:#67e8f9;}
+.stat-val{font-family:'Space Grotesk',sans-serif;font-size:1.8rem;font-weight:700;color:white;line-height:1;}
+.stat-label{font-size:0.75rem;color:var(--muted);margin-top:0.3rem;font-weight:500;}
+
+
+.section-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;}
+.section-hdr h2{font-family:'Space Grotesk',sans-serif;font-size:1.15rem;font-weight:700;color:white;}
+.btn-primary{padding:0.6rem 1.25rem;background:var(--gradient);color:white;border:none;
+  border-radius:var(--radius-sm);font-family:'Inter',sans-serif;font-size:0.82rem;font-weight:700;
+  cursor:pointer;display:inline-flex;align-items:center;gap:0.4rem;transition:all 0.2s;
+  box-shadow:0 4px 15px rgba(99,102,241,0.3);}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 25px rgba(99,102,241,0.4);}
+
+
+.table-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.table-search{padding:1rem 1.25rem;border-bottom:1px solid var(--border);}
+.table-search input{width:260px;padding:0.55rem 0.9rem;background:rgba(255,255,255,0.06);
+  border:1px solid var(--border);border-radius:var(--radius-sm);color:white;font-family:'Inter',sans-serif;
+  font-size:0.82rem;outline:none;transition:border-color 0.2s;}
+.table-search input::placeholder{color:var(--muted);}
+.table-search input:focus{border-color:var(--primary);}
+table{width:100%;border-collapse:collapse;}
+th{padding:0.75rem 1rem;font-size:0.7rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:0.8px;color:var(--muted);background:rgba(255,255,255,0.03);
+  border-bottom:1px solid var(--border);white-space:nowrap;text-align:left;}
+td{padding:0.85rem 1rem;font-size:0.83rem;border-bottom:1px solid rgba(255,255,255,0.05);
+  vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,0.03);}
+
+
+.pill{display:inline-flex;align-items:center;gap:0.3rem;padding:0.25rem 0.7rem;
+  border-radius:999px;font-size:0.72rem;font-weight:700;}
+.pill-green{background:rgba(16,185,129,0.15);color:#6ee7b7;border:1px solid rgba(16,185,129,0.25);}
+.pill-red{background:rgba(239,68,68,0.15);color:#fca5a5;border:1px solid rgba(239,68,68,0.25);}
+.pill-yellow{background:rgba(245,158,11,0.15);color:#fcd34d;border:1px solid rgba(245,158,11,0.25);}
+.pill-blue{background:rgba(99,102,241,0.15);color:#a5b4fc;border:1px solid rgba(99,102,241,0.25);}
+.pill-gray{background:rgba(255,255,255,0.07);color:var(--muted);border:1px solid var(--border);}
+
+
+.actions{display:flex;gap:0.4rem;flex-wrap:nowrap;}
+.btn-icon{width:32px;height:32px;border:none;border-radius:8px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:0.85rem;transition:all 0.2s;}
+.btn-icon.edit{background:rgba(99,102,241,0.15);color:#a5b4fc;}
+.btn-icon.edit:hover{background:rgba(99,102,241,0.3);color:white;}
+.btn-icon.del{background:rgba(239,68,68,0.15);color:#fca5a5;}
+.btn-icon.del:hover{background:rgba(239,68,68,0.3);color:white;}
+.btn-icon.toggle{background:rgba(16,185,129,0.15);color:#6ee7b7;}
+.btn-icon.toggle:hover{background:rgba(16,185,129,0.3);color:white;}
+.btn-icon.approve{background:rgba(16,185,129,0.15);color:#6ee7b7;}
+.btn-icon.approve:hover{background:rgba(16,185,129,0.3);color:white;}
+.btn-icon.reject{background:rgba(239,68,68,0.15);color:#fca5a5;}
+.btn-icon.reject:hover{background:rgba(239,68,68,0.3);color:white;}
+.btn-icon.view{background:rgba(6,182,212,0.15);color:#67e8f9;}
+.btn-icon.view:hover{background:rgba(6,182,212,0.3);color:white;}
+
+.text-muted{color:var(--muted);}
+.fw-semibold{font-weight:600;color:white;}
+
+
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:1.5rem;}
+@media(max-width:900px){.dash-grid{grid-template-columns:1fr;}}
+.dash-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.dash-card-hdr{padding:1rem 1.25rem;border-bottom:1px solid var(--border);
+  font-size:0.82rem;font-weight:700;color:white;display:flex;align-items:center;gap:0.5rem;}
+.dash-card-hdr i{color:var(--primary);}
+.mini-row{display:flex;align-items:center;justify-content:space-between;
+  padding:0.7rem 1.25rem;border-bottom:1px solid rgba(255,255,255,0.05);font-size:0.82rem;}
+.mini-row:last-child{border-bottom:none;}
+.mini-row .name{color:white;font-weight:500;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.mini-row .meta{color:var(--muted);font-size:0.75rem;}
+
+
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);
+  backdrop-filter:blur(6px);z-index:1000;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:linear-gradient(135deg,#0d1f3c,#0f2a4a);border:1px solid var(--border);
+  border-radius:24px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;
+  box-shadow:0 30px 80px rgba(0,0,0,0.6);}
+.modal-hdr{padding:1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.modal-hdr h3{font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:700;color:white;}
+.modal-close{background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;padding:0.25rem;
+  line-height:1;transition:color 0.2s;}
+.modal-close:hover{color:white;}
+.modal-body{padding:1.5rem;}
+.form-group{margin-bottom:1.1rem;}
+.form-group label{display:block;font-size:0.75rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:0.7px;color:var(--muted);margin-bottom:0.45rem;}
+.form-group input,.form-group select,.form-group textarea{
+  width:100%;padding:0.75rem 1rem;background:rgba(255,255,255,0.07);
+  border:1.5px solid rgba(255,255,255,0.1);border-radius:var(--radius-sm);
+  color:white;font-family:'Inter',sans-serif;font-size:0.87rem;outline:none;
+  transition:border-color 0.2s;box-sizing:border-box;}
+.form-group input::placeholder,.form-group textarea::placeholder{color:rgba(255,255,255,0.25);}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--primary);}
+.form-group select option{background:#0d1f3c;color:white;}
+.form-group textarea{resize:vertical;min-height:80px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.modal-footer{padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;gap:0.75rem;justify-content:flex-end;}
+.btn-cancel{padding:0.65rem 1.25rem;background:rgba(255,255,255,0.07);color:var(--muted);
+  border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'Inter',sans-serif;
+  font-size:0.85rem;cursor:pointer;transition:all 0.2s;}
+.btn-cancel:hover{color:white;background:rgba(255,255,255,0.12);}
+.btn-save{padding:0.65rem 1.5rem;background:var(--gradient);color:white;
+  border:none;border-radius:var(--radius-sm);font-family:'Inter',sans-serif;
+  font-size:0.85rem;font-weight:700;cursor:pointer;transition:all 0.2s;
+  box-shadow:0 4px 15px rgba(99,102,241,0.3);display:inline-flex;align-items:center;gap:0.5rem;}
+.btn-save:hover{transform:translateY(-1px);box-shadow:0 8px 25px rgba(99,102,241,0.4);}
+
+
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;padding:0.85rem 1.25rem;border-radius:12px;
+  font-size:0.85rem;font-weight:600;display:flex;align-items:center;gap:0.6rem;z-index:9999;
+  box-shadow:0 8px 30px rgba(0,0,0,0.4);transform:translateY(20px);opacity:0;
+  transition:all 0.3s;pointer-events:none;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.success{background:#064e3b;border:1px solid #065f46;color:#6ee7b7;}
+.toast.error{background:#7f1d1d;border:1px solid #991b1b;color:#fca5a5;}
+
+
+.course-img{width:40px;height:40px;border-radius:8px;object-fit:cover;
+  background:rgba(99,102,241,0.2);display:flex;align-items:center;justify-content:center;}
+</style>
+</head>
+<body>
+
+
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <div class="brand">
+      <div class="brand-icon"><i class="bi bi-book-half"></i></div>
+      <div class="brand-name">E-<span>Learning</span></div>
+    </div>
+    <div class="admin-badge">Admin Panel</div>
+  </div>
+
+  <div class="nav-section">Main</div>
+  <button class="nav-link active" onclick="showSection('dashboard',this)">
+    <i class="bi bi-grid-fill"></i> Dashboard
+  </button>
+  <button class="nav-link" onclick="showSection('courses',this)">
+    <i class="bi bi-book-fill"></i> Courses
+  </button>
+  <button class="nav-link" onclick="showSection('students',this)">
+    <i class="bi bi-people-fill"></i> Students
+  </button>
+  <button class="nav-link" onclick="showSection('enrollments',this)">
+    <i class="bi bi-clipboard-check-fill"></i> Enrollments
+    {% if pending_requests %}<span class="badge">{{ pending_requests|length }}</span>{% endif %}
+  </button>
+
+  <div class="nav-section">Data</div>
+  <button class="nav-link" onclick="showSection('quizzes',this)">
+    <i class="bi bi-patch-question-fill"></i> Quiz Results
+  </button>
+  <button class="nav-link" onclick="showSection('messages',this)">
+    <i class="bi bi-chat-dots-fill"></i> Messages
+    {% if unread_messages %}<span class="badge">{{ unread_messages }}</span>{% endif %}
+  </button>
+
+  <div class="nav-section">Tools</div>
+  <a class="nav-link" href="/backend/">
+    <i class="bi bi-database-fill-gear"></i> Django Backend
+  </a>
+
+  <div class="sidebar-footer">
+    <div class="admin-info">
+      <div class="admin-avatar">{{ admin_name|first|upper }}</div>
+      <div class="admin-info-text">
+        <div class="name">{{ admin_name }}</div>
+        <div class="role">System Admin</div>
+      </div>
+    </div>
+    <a href="/admin/logout/"><button class="btn-logout"><i class="bi bi-box-arrow-right"></i> Logout</button></a>
+  </div>
+</aside>
+
+
+<div class="main">
+  
+  <div class="topbar">
+    <div class="topbar-title" id="topbarTitle">Dashboard</div>
+    <div class="topbar-right">
+      <span class="topbar-time" id="clock"></span>
+      <a href="/" class="go-site"><i class="bi bi-box-arrow-up-right"></i> View Site</a>
+    </div>
+  </div>
+
+  <div class="content">
+
+    
+    <div class="section active" id="sec-dashboard">
+
+      
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-icon blue"><i class="bi bi-people-fill"></i></div>
+          <div><div class="stat-val">{{ total_students }}</div><div class="stat-label">Total Students</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green"><i class="bi bi-book-fill"></i></div>
+          <div><div class="stat-val">{{ active_courses }}</div><div class="stat-label">Active Courses</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon yellow"><i class="bi bi-patch-question-fill"></i></div>
+          <div><div class="stat-val">{{ total_quizzes }}</div><div class="stat-label">Quiz Attempts</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon cyan"><i class="bi bi-clipboard-check-fill"></i></div>
+          <div><div class="stat-val">{{ total_enrollments }}</div><div class="stat-label">Enrollments</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon red"><i class="bi bi-chat-dots-fill"></i></div>
+          <div><div class="stat-val">{{ unread_messages }}</div><div class="stat-label">Unread Messages</div></div>
+        </div>
+      </div>
+
+      
+      <div class="dash-grid">
+        
+        <div class="dash-card">
+          <div class="dash-card-hdr"><i class="bi bi-book-fill"></i> Recent Courses</div>
+          {% for c in courses|slice:":5" %}
+          <div class="mini-row">
+            <div>
+              <div class="name">{{ c.course_name }}</div>
+              <div class="meta">{{ c.get_category_display }} · ₹{{ c.price }}</div>
+            </div>
+            <span class="pill {% if c.is_active %}pill-green{% else %}pill-red{% endif %}">
+              {% if c.is_active %}Active{% else %}Draft{% endif %}
+            </span>
+          </div>
+          {% empty %}
+          <div class="mini-row"><span class="text-muted">No courses yet.</span></div>
+          {% endfor %}
+        </div>
+
+        
+        <div class="dash-card">
+          <div class="dash-card-hdr"><i class="bi bi-people-fill"></i> Recent Students</div>
+          {% for s in students|slice:":5" %}
+          <div class="mini-row">
+            <div>
+              <div class="name">{{ s.name }}</div>
+              <div class="meta">{{ s.username }} · {{ s.enrolled_courses.count }} courses</div>
+            </div>
+            <span class="pill pill-blue">Student</span>
+          </div>
+          {% empty %}
+          <div class="mini-row"><span class="text-muted">No students yet.</span></div>
+          {% endfor %}
+        </div>
+
+        
+        <div class="dash-card">
+          <div class="dash-card-hdr"><i class="bi bi-hourglass-split"></i> Pending Enrollments</div>
+          {% for r in pending_requests|slice:":5" %}
+          <div class="mini-row">
+            <div>
+              <div class="name">{{ r.student.name }}</div>
+              <div class="meta">{{ r.course.course_name }}</div>
+            </div>
+            <div class="actions">
+              <button class="btn-icon approve" title="Approve" data-action="approve" data-pk="{{ r.pk }}"><i class="bi bi-check-lg"></i></button>
+              <button class="btn-icon reject" title="Reject" data-action="reject" data-pk="{{ r.pk }}"><i class="bi bi-x-lg"></i></button>
+            </div>
+          </div>
+          {% empty %}
+          <div class="mini-row"><span class="text-muted">No pending requests.</span></div>
+          {% endfor %}
+        </div>
+
+        
+        <div class="dash-card">
+          <div class="dash-card-hdr"><i class="bi bi-chat-dots-fill"></i> Recent Messages</div>
+          {% for m in contact_messages|slice:":5" %}
+          <div class="mini-row">
+            <div>
+              <div class="name">{{ m.name }}</div>
+              <div class="meta">{{ m.subject|truncatechars:30 }}</div>
+            </div>
+            <span class="pill {% if m.is_read %}pill-gray{% else %}pill-red{% endif %}">
+              {% if m.is_read %}Read{% else %}New{% endif %}
+            </span>
+          </div>
+          {% empty %}
+          <div class="mini-row"><span class="text-muted">No messages yet.</span></div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="section" id="sec-courses">
+      <div class="section-hdr">
+        <h2><i class="bi bi-book-fill" style="color:var(--primary)"></i> All Courses</h2>
+        <button class="btn-primary" onclick="openAddModal()"><i class="bi bi-plus-lg"></i> Add Course</button>
+      </div>
+      <div class="table-wrap">
+        <div class="table-search">
+          <input type="text" id="courseSearch" placeholder="🔍  Search courses..." oninput="filterTable('courseTable',this.value)">
+        </div>
+        <table id="courseTable">
+          <thead>
+            <tr>
+              <th>#</th><th>Course</th><th>Category</th><th>Price</th><th>Status</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for c in courses %}
+            <tr id="course-row-{{ c.pk }}">
+              <td class="text-muted">{{ c.pk }}</td>
+              <td class="fw-semibold">{{ c.course_name }}</td>
+              <td><span class="pill pill-blue">{{ c.get_category_display }}</span></td>
+              <td>₹{{ c.price }}</td>
+              <td>
+                <span class="pill {% if c.is_active %}pill-green{% else %}pill-red{% endif %}" id="status-{{ c.pk }}">
+                  {% if c.is_active %}● Active{% else %}● Draft{% endif %}
+                </span>
+              </td>
+              <td>
+                <div class="actions">
+                  <button class="btn-icon toggle" title="Toggle Status" data-action="toggle" data-pk="{{ c.pk }}"><i class="bi bi-arrow-repeat"></i></button>
+                  <button class="btn-icon del" title="Delete" data-action="delete" data-pk="{{ c.pk }}" data-name="{{ c.course_name|escapejs }}"><i class="bi bi-trash3-fill"></i></button>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--muted);">No courses found.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    
+    <div class="section" id="sec-students">
+      <div class="section-hdr">
+        <h2><i class="bi bi-people-fill" style="color:var(--primary)"></i> All Students</h2>
+      </div>
+      <div class="table-wrap">
+        <div class="table-search">
+          <input type="text" placeholder="🔍  Search students..." oninput="filterTable('studentTable',this.value)">
+        </div>
+        <table id="studentTable">
+          <thead>
+            <tr><th>#</th><th>Name</th><th>Username</th><th>Email</th><th>Phone</th><th>Enrolled</th></tr>
+          </thead>
+          <tbody>
+            {% for s in students %}
+            <tr>
+              <td class="text-muted">{{ s.pk }}</td>
+              <td class="fw-semibold">{{ s.name }}</td>
+              <td class="text-muted">{{ s.username }}</td>
+              <td class="text-muted">{{ s.email|default:"—" }}</td>
+              <td class="text-muted">{{ s.number|default:"—" }}</td>
+              <td><span class="pill pill-blue">{{ s.enrolled_courses.count }} courses</span></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--muted);">No students.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    
+    <div class="section" id="sec-enrollments">
+      <div class="section-hdr">
+        <h2><i class="bi bi-clipboard-check-fill" style="color:var(--primary)"></i> Enrollment Requests</h2>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Student</th><th>Course</th><th>Date</th><th>Status</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="enrollmentBody">
+            {% for r in pending_requests %}
+            <tr id="req-row-{{ r.pk }}">
+              <td class="text-muted">{{ r.pk }}</td>
+              <td class="fw-semibold">{{ r.student.name }}<div class="text-muted" style="font-size:0.75rem;">{{ r.student.username }}</div></td>
+              <td>{{ r.course.course_name }}</td>
+              <td class="text-muted">{{ r.request_date }}</td>
+              <td><span class="pill pill-yellow">Pending</span></td>
+              <td>
+                <div class="actions">
+                  <button class="btn-icon approve" title="Approve" data-action="approve" data-pk="{{ r.pk }}"><i class="bi bi-check-lg"></i></button>
+                  <button class="btn-icon reject" title="Reject" data-action="reject" data-pk="{{ r.pk }}"><i class="bi bi-x-lg"></i></button>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--muted);">No pending requests.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    
+    <div class="section" id="sec-quizzes">
+      <div class="section-hdr">
+        <h2><i class="bi bi-patch-question-fill" style="color:var(--primary)"></i> Quiz Results</h2>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Student</th><th>Quiz</th><th>Score</th><th>%</th><th>Result</th><th>Date</th></tr>
+          </thead>
+          <tbody>
+            {% for qr in quiz_results %}
+            <tr>
+              <td class="text-muted">{{ forloop.counter }}</td>
+              <td class="fw-semibold">{{ qr.student.name }}</td>
+              <td class="text-muted">{{ qr.quiz.title }}</td>
+              <td>{{ qr.score }}/{{ qr.total }}</td>
+              <td>{% if qr.total %}{{ qr.score|floatformat:0 }}{% endif %}%</td>
+              <td>
+                <span class="pill {% if qr.passed %}pill-green{% else %}pill-red{% endif %}">
+                  {% if qr.passed %}✓ Passed{% else %}✗ Failed{% endif %}
+                </span>
+              </td>
+              <td class="text-muted">{{ qr.attempted_at|date:"M d, Y" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--muted);">No quiz results.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    
+    <div class="section" id="sec-messages">
+      <div class="section-hdr">
+        <h2><i class="bi bi-chat-dots-fill" style="color:var(--primary)"></i> Contact Messages</h2>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Name</th><th>Email</th><th>Subject</th><th>Date</th><th>Status</th><th>Actions</th></tr>
+          </thead>
+          <tbody>
+            {% for m in contact_messages %}
+            <tr id="msg-row-{{ m.pk }}">
+              <td class="text-muted">{{ m.pk }}</td>
+              <td class="fw-semibold">{{ m.name }}</td>
+              <td class="text-muted">{{ m.email }}</td>
+              <td>{{ m.subject|truncatechars:35 }}</td>
+              <td class="text-muted">{{ m.submitted_at|date:"M d, Y" }}</td>
+              <td>
+                <span class="pill {% if m.is_replied %}pill-green{% elif m.is_read %}pill-gray{% else %}pill-red{% endif %}">
+                  {% if m.is_replied %}Replied{% elif m.is_read %}Read{% else %}New{% endif %}
+                </span>
+              </td>
+              <td>
+                <div class="actions">
+                  {% if not m.is_read %}
+                  <button class="btn-icon toggle" title="Mark Read" data-action="markread" data-pk="{{ m.pk }}"><i class="bi bi-check2-all"></i></button>
+                  {% endif %}
+                  <a href="/admin_reply/{{ m.pk }}/" target="_blank"><button class="btn-icon view" title="Reply"><i class="bi bi-reply-fill"></i></button></a>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--muted);">No messages.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h3><i class="bi bi-plus-circle-fill" style="color:var(--primary)"></i> Add New Course</h3>
+      <button class="modal-close" onclick="closeModal('addModal')"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Course Name *</label>
+        <input type="text" id="add_name" placeholder="e.g. Python for Beginners">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Category *</label>
+          <select id="add_cat">
+            <option value="">Select category</option>
+            {% for val,label in category_choices %}
+            <option value="{{ val }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Price (₹)</label>
+          <input type="number" id="add_price" placeholder="0" min="0">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea id="add_desc" rows="3" placeholder="Course description..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Course Image</label>
+        <input type="file" id="add_image" accept="image/*" style="color:var(--muted);">
+      </div>
+      <div class="form-group">
+        <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
+          <input type="checkbox" id="add_active" checked style="width:auto;"> Set as Active
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('addModal')">Cancel</button>
+      <button class="btn-save" id="addSaveBtn" onclick="submitAddCourse()">
+        <i class="bi bi-plus-lg"></i> Add Course
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Section navigation ──────────────────────────────────────────────────────
+function showSection(name, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
+  document.getElementById('sec-' + name).classList.add('active');
+  btn.classList.add('active');
+  const titles = {
+    dashboard: 'Dashboard', courses: 'Courses', students: 'Students',
+    enrollments: 'Enrollments', quizzes: 'Quiz Results', messages: 'Messages'
+  };
+  document.getElementById('topbarTitle').textContent = titles[name] || name;
+}
+
+// ── Clock ────────────────────────────────────────────────────────────────────
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent =
+    now.toLocaleDateString('en-IN', { weekday: 'short', day: '2-digit', month: 'short' }) +
+    ' — ' + now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+// ── Toast ────────────────────────────────────────────────────────────────────
+function toast(msg, type) {
+  if (!type) { type = 'success'; }
+  var t = document.getElementById('toast');
+  t.className = 'toast show ' + type;
+  var icon = type === 'success'
+    ? '<i class="bi bi-check-circle-fill"></i>'
+    : '<i class="bi bi-exclamation-triangle-fill"></i>';
+  t.innerHTML = icon + ' ' + msg;
+  setTimeout(function () { t.classList.remove('show'); }, 3000);
+}
+
+// ── Table search ─────────────────────────────────────────────────────────────
+function filterTable(tableId, query) {
+  var q = query.toLowerCase();
+  document.querySelectorAll('#' + tableId + ' tbody tr').forEach(function (row) {
+    row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+
+// ── Modal helpers ─────────────────────────────────────────────────────────────
+function openAddModal() { document.getElementById('addModal').classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(function (o) {
+  o.addEventListener('click', function (e) {
+    if (e.target === o) { o.classList.remove('open'); }
+  });
+});
+
+// ── Add course form ───────────────────────────────────────────────────────────
+async function submitAddCourse() {
+  var name   = document.getElementById('add_name').value.trim();
+  var cat    = document.getElementById('add_cat').value;
+  var price  = document.getElementById('add_price').value || 0;
+  var desc   = document.getElementById('add_desc').value.trim();
+  var img    = document.getElementById('add_image').files[0];
+  var active = document.getElementById('add_active').checked;
+
+  if (!name || !cat) { toast('Please fill in all required fields.', 'error'); return; }
+
+  var btn = document.getElementById('addSaveBtn');
+  btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Saving...';
+  btn.disabled = true;
+
+  var fd = new FormData();
+  fd.append('course_name', name);
+  fd.append('category', cat);
+  fd.append('price', price);
+  fd.append('description', desc);
+  fd.append('is_active', active ? 'true' : 'false');
+  if (img) { fd.append('image', img); }
+
+  try {
+    var res  = await fetch('/admin/course/add/', { method: 'POST', body: fd });
+    var data = await res.json();
+    if (data.status === 'ok') {
+      toast('Course "' + data.course_name + '" added successfully!');
+      closeModal('addModal');
+      setTimeout(function () { location.reload(); }, 1000);
+    } else {
+      toast(data.message || 'Failed to add course.', 'error');
+    }
+  } catch (e) { toast('Network error.', 'error'); }
+
+  btn.innerHTML = '<i class="bi bi-plus-lg"></i> Add Course';
+  btn.disabled = false;
+}
+
+// ── Action handlers ───────────────────────────────────────────────────────────
+async function deleteCourse(pk, name) {
+  if (!confirm('Delete course "' + name + '"? This cannot be undone.')) { return; }
+  try {
+    var res = await fetch('/admin/course/delete/' + pk + '/', { method: 'POST' });
+    var d   = await res.json();
+    if (d.status === 'ok') {
+      var row = document.getElementById('course-row-' + pk);
+      if (row) { row.remove(); }
+      toast('Course deleted.');
+    } else { toast('Error deleting course.', 'error'); }
+  } catch (e) { toast('Network error.', 'error'); }
+}
+
+async function toggleCourse(pk) {
+  try {
+    var res = await fetch('/admin/course/toggle/' + pk + '/', { method: 'POST' });
+    var d   = await res.json();
+    if (d.status === 'ok') {
+      var el = document.getElementById('status-' + pk);
+      if (d.is_active) {
+        el.className = 'pill pill-green'; el.textContent = '● Active';
+      } else {
+        el.className = 'pill pill-red'; el.textContent = '● Draft';
+      }
+      toast('Course status updated.');
+    }
+  } catch (e) { toast('Network error.', 'error'); }
+}
+
+async function approveRequest(pk, btn) {
+  try {
+    var res = await fetch('/admin/request/approve/' + pk + '/', { method: 'POST' });
+    var d   = await res.json();
+    if (d.status === 'ok') {
+      var row = document.getElementById('req-row-' + pk);
+      if (row) { row.remove(); }
+      toast('Enrollment approved!');
+    } else { toast('Error.', 'error'); }
+  } catch (e) { toast('Network error.', 'error'); }
+}
+
+async function rejectRequest(pk, btn) {
+  try {
+    var res = await fetch('/admin/request/reject/' + pk + '/', { method: 'POST' });
+    var d   = await res.json();
+    if (d.status === 'ok') {
+      var row = document.getElementById('req-row-' + pk);
+      if (row) { row.remove(); }
+      toast('Request rejected.');
+    } else { toast('Error.', 'error'); }
+  } catch (e) { toast('Network error.', 'error'); }
+}
+
+async function markRead(pk, btn) {
+  try {
+    var res = await fetch('/admin/message/read/' + pk + '/', { method: 'POST' });
+    var d   = await res.json();
+    if (d.status === 'ok') {
+      btn.remove();
+      var row  = document.getElementById('msg-row-' + pk);
+      var pill = row ? row.querySelector('.pill') : null;
+      if (pill) { pill.className = 'pill pill-gray'; pill.textContent = 'Read'; }
+      toast('Marked as read.');
+    }
+  } catch (e) { toast('Network error.', 'error'); }
+}
+
+// ── Event delegation — handles all data-action buttons ────────────────────────
+document.addEventListener('click', function (e) {
+  var btn = e.target.closest('[data-action]');
+  if (!btn) { return; }
+
+  var action = btn.dataset.action;
+  var pk     = btn.dataset.pk;
+
+  if (action === 'approve')   { approveRequest(pk, btn); }
+  if (action === 'reject')    { rejectRequest(pk, btn); }
+  if (action === 'toggle')    { toggleCourse(pk); }
+  if (action === 'delete')    { deleteCourse(pk, btn.dataset.name || ''); }
+  if (action === 'markread')  { markRead(pk, btn); }
+});
+</script>
+</body>
+</html>

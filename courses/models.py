@@ -118,6 +118,8 @@ class ContactMessage(models.Model):
     message = models.TextField()
     submitted_at = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False)
+    admin_reply = models.TextField(blank=True, default='')
+    is_replied = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.name} — {self.subject}"
@@ -195,7 +197,6 @@ class Certificate(models.Model):
         return f"{self.student.name} — {self.course.course_name}"
 
 
-# ── NOTIFICATIONS ──────────────────────────────────
 class Notification(models.Model):
     NOTIF_TYPES = [
         ('approved',    'Course Approved'),
@@ -204,11 +205,11 @@ class Notification(models.Model):
         ('quiz_passed', 'Quiz Passed'),
         ('enrolled',    'Course Enrolled'),
     ]
-    student   = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='notifications')
+    student    = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='notifications')
     notif_type = models.CharField(max_length=20, choices=NOTIF_TYPES)
-    title     = models.CharField(max_length=200)
-    message   = models.TextField()
-    is_read   = models.BooleanField(default=False)
+    title      = models.CharField(max_length=200)
+    message    = models.TextField()
+    is_read    = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -216,3 +217,19 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"{self.student.name} — {self.title}"
+
+
+class CourseReview(models.Model):
+    course     = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='reviews')
+    student    = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='reviews')
+    rating     = models.IntegerField(choices=[(i, i) for i in range(1, 6)])  # 1 to 5 stars
+    review     = models.TextField(max_length=1000, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('course', 'student')   # one review per student per course
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.student.name} → {self.course.course_name} ({self.rating}★)"

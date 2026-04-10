@@ -97,7 +97,6 @@ class Command(BaseCommand):
         for c in COURSES:
             filepath = os.path.join(media_path, c['filename'])
 
-            # Download image
             if not os.path.exists(filepath):
                 self.stdout.write(f"Downloading image for {c['name']}...")
                 try:
@@ -113,7 +112,6 @@ class Command(BaseCommand):
                     self.stdout.write(self.style.ERROR(f"  Failed: {e}"))
                     continue
 
-            # Update or create course
             course, created = Course.objects.update_or_create(
                 course_name=c['name'],
                 defaults={

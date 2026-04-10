@@ -20,7 +20,7 @@
 
 <div class="container" style="padding-bottom: 4rem;">
 
-    <!-- Stats Cards -->
+    
     <div class="dash-stats" id="dashStats">
         <div class="stat-card blue">
             <div class="stat-icon"><i class="bi bi-collection-play-fill"></i></div>
@@ -51,7 +51,7 @@
 
     <div class="dash-grid">
 
-        <!-- My Courses -->
+        
         <div class="dash-section" style="grid-column: 1 / -1;">
             <div class="dash-section-header">
                 <h2 class="dash-section-title"><i class="bi bi-collection-play"></i> My Courses</h2>
@@ -65,7 +65,7 @@
             </div>
         </div>
 
-        <!-- Recent Quiz Results -->
+        
         <div class="dash-section">
             <div class="dash-section-header">
                 <h2 class="dash-section-title"><i class="bi bi-patch-question-fill"></i> Recent Quizzes</h2>
@@ -75,7 +75,7 @@
             </div>
         </div>
 
-        <!-- Certificates -->
+        
         <div class="dash-section">
             <div class="dash-section-header">
                 <h2 class="dash-section-title"><i class="bi bi-award"></i> My Certificates</h2>
@@ -116,7 +116,7 @@
 }
 .dash-explore-btn:hover { color: white; transform: translateY(-2px); opacity: 0.9; }
 
-/* Stats */
+
 .dash-stats {
     display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem;
     margin: 2rem 0;
@@ -144,7 +144,7 @@
 }
 .stat-label { font-size: 0.75rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
 
-/* Grid */
+
 .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
 .dash-section {
     background: white; border-radius: 20px; padding: 1.75rem;
@@ -156,7 +156,7 @@
 .dash-see-all { font-size: 0.8rem; font-weight: 600; color: #6366f1; text-decoration: none; }
 .dash-see-all:hover { text-decoration: underline; }
 
-/* Course Progress Cards */
+
 .course-progress-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
 .cp-card {
     border: 1.5px solid #e5e7eb; border-radius: 14px; padding: 1.25rem;
@@ -196,7 +196,7 @@
     font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 999px;
 }
 
-/* Quiz Results */
+
 .quiz-result-item {
     display: flex; align-items: center; gap: 1rem;
     padding: 0.85rem 0; border-bottom: 1px solid #f1f5f9;
@@ -216,7 +216,7 @@
 .qr-badge.passed { background: #f0fdf4; color: #059669; }
 .qr-badge.failed { background: #fef2f2; color: #dc2626; }
 
-/* Certificates */
+
 .cert-item {
     display: flex; align-items: center; gap: 1rem;
     padding: 1rem; border-radius: 12px; border: 1.5px solid #e5e7eb;
@@ -235,17 +235,17 @@
 }
 .cert-view-btn:hover { opacity: 0.9; }
 
-/* Empty state */
+
 .dash-empty { text-align: center; padding: 2.5rem 1rem; color: #9ca3af; }
 .dash-empty i { font-size: 2.5rem; margin-bottom: 0.75rem; display: block; opacity: 0.4; }
 .dash-empty p { font-size: 0.85rem; margin: 0; }
 
-/* Loading */
+
 .dash-loading { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; padding: 2rem; color: #9ca3af; font-size: 0.85rem; }
 .spinner { width: 28px; height: 28px; border: 3px solid #e5e7eb; border-top-color: #6366f1; border-radius: 50%; animation: spin 0.7s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Nav dashboard button */
+
 .btn-nav-dashboard {
     background: rgba(99,102,241,0.15); color: #a5b4fc;
     border: 1.5px solid rgba(99,102,241,0.3); border-radius: 10px;
@@ -288,23 +288,18 @@ window.onload = async function() {
 
     if (data.error) { console.error(data.error); return; }
 
-    // Name
     document.getElementById('studentName').textContent = data.student_name;
 
-    // Stats
     document.getElementById('statEnrolled').textContent = data.stats.total_enrolled;
     document.getElementById('statCompleted').textContent = data.stats.total_completed;
     document.getElementById('statCerts').textContent = data.stats.total_certificates;
     document.getElementById('statQuizzes').textContent = data.stats.total_quizzes_passed;
     document.getElementById('statLessons').textContent = data.stats.total_lessons_done;
 
-    // Courses
     renderCourses(data.courses);
 
-    // Quizzes
     renderQuizzes(data.recent_quizzes);
 
-    // Certificates
     renderCerts(data.courses);
 };
 
@@ -400,45 +395,180 @@ async function viewCert(certId, courseName) {
     const data = await res.json();
     if (data.status !== 'ok') return;
 
-    const modal = document.createElement('div');
-    modal.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:1rem;';
-    modal.innerHTML = `
-        <div style="background:white;border-radius:20px;width:100%;max-width:680px;max-height:90vh;overflow-y:auto;position:relative;animation:slideUp 0.3s ease;">
-            <button onclick="this.closest('[style]').remove()" style="position:absolute;top:1rem;right:1rem;background:#f1f5f9;border:none;border-radius:50%;width:36px;height:36px;cursor:pointer;font-size:0.9rem;color:#64748b;z-index:1;">✕</button>
-            <div style="background:linear-gradient(135deg,#0f172a,#1e1b4b);padding:3rem 2.5rem;text-align:center;border-radius:20px 20px 0 0;position:relative;overflow:hidden;">
-                <div style="position:absolute;inset:12px;border:2px solid rgba(255,255,255,0.1);border-radius:12px;pointer-events:none;"></div>
-                <div style="font-size:3rem;margin-bottom:0.5rem;">🏆</div>
-                <div style="font-size:0.75rem;font-weight:700;color:#a5b4fc;text-transform:uppercase;letter-spacing:3px;margin-bottom:1rem;">Certificate of Completion</div>
-                <div style="font-family:var(--font-display);font-size:1.8rem;font-weight:800;color:white;margin-bottom:0.5rem;">E-Learning Platform</div>
-                <div style="color:rgba(255,255,255,0.5);font-size:0.9rem;margin-bottom:1rem;">This is to certify that</div>
-                <div style="font-family:var(--font-display);font-size:2rem;font-weight:700;background:linear-gradient(135deg,#fbbf24,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:0.5rem;">${data.student_name}</div>
-                <div style="color:rgba(255,255,255,0.4);font-size:0.85rem;margin-bottom:0.3rem;">has successfully completed</div>
-                <div style="font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:white;margin-bottom:1.5rem;">${data.course_name}</div>
-                <div style="width:80px;height:3px;background:linear-gradient(90deg,#6366f1,#f59e0b);margin:0 auto 1.5rem;border-radius:999px;"></div>
-                <div style="display:flex;justify-content:center;gap:3rem;">
-                    <div style="text-align:center;">
-                        <div style="font-size:0.7rem;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.2rem;">Issue Date</div>
-                        <div style="font-size:0.88rem;font-weight:700;color:rgba(255,255,255,0.8);">${data.issued_at}</div>
-                    </div>
-                    <div style="text-align:center;">
-                        <div style="font-size:0.7rem;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.2rem;">Certificate ID</div>
-                        <div style="font-size:0.75rem;font-weight:700;color:rgba(255,255,255,0.8);">${data.certificate_id}</div>
-                    </div>
-                    <div style="text-align:center;">
-                        <div style="font-size:0.7rem;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.2rem;">Status</div>
-                        <div style="font-size:0.88rem;font-weight:700;color:#10b981;">✓ Verified</div>
-                    </div>
-                </div>
+    document.getElementById('certModalOverlay')?.remove();
+    document.getElementById('certPrintStyle')?.remove();
+
+    const printStyle = document.createElement('style');
+    printStyle.id = 'certPrintStyle';
+    printStyle.textContent = `
+        @media print {
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+            body > *:not(#certModalOverlay) { display: none !important; }
+            #certModalOverlay { position: fixed !important; inset: 0 !important; background: white !important; display: flex !important; align-items: center !important; justify-content: center !important; padding: 0 !important; }
+            #certPrintBox { box-shadow: none !important; max-height: none !important; width: 100% !important; border-radius: 0 !important; }
+            .cert-no-print { display: none !important; }
+            @page { margin: 0; size: A4 landscape; }
+        }`;
+    document.head.appendChild(printStyle);
+
+    const overlay = document.createElement('div');
+    overlay.id = 'certModalOverlay';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:1.5rem;';
+
+    overlay.innerHTML = `
+    <div id="certPrintBox" style="width:100%;max-width:760px;max-height:90vh;overflow-y:auto;border-radius:20px;position:relative;animation:slideUp 0.3s ease;box-shadow:0 30px 80px rgba(0,0,0,0.5);">
+
+      
+      <div id="certDesign" style="
+        background: linear-gradient(150deg, #0f0c29 0%, #302b63 40%, #24243e 70%, #1a0533 100%);
+        padding: 0; border-radius: 20px; overflow: hidden; position: relative;">
+
+        
+        <div style="height:8px;background:linear-gradient(90deg,#ff6b6b,#ffd93d,#6bcb77,#4d96ff,#c77dff,#ff6b6b);flex-shrink:0;"></div>
+
+        
+        <div style="padding:2.5rem 3rem;position:relative;text-align:center;">
+
+          
+          <div style="position:absolute;top:12px;left:12px;width:50px;height:50px;border-top:3px solid #ffd700;border-left:3px solid #ffd700;border-radius:4px 0 0 0;opacity:0.8;"></div>
+          <div style="position:absolute;top:12px;right:12px;width:50px;height:50px;border-top:3px solid #ffd700;border-right:3px solid #ffd700;border-radius:0 4px 0 0;opacity:0.8;"></div>
+          <div style="position:absolute;bottom:12px;left:12px;width:50px;height:50px;border-bottom:3px solid #ffd700;border-left:3px solid #ffd700;border-radius:0 0 0 4px;opacity:0.8;"></div>
+          <div style="position:absolute;bottom:12px;right:12px;width:50px;height:50px;border-bottom:3px solid #ffd700;border-right:3px solid #ffd700;border-radius:0 0 4px 0;opacity:0.8;"></div>
+
+          
+          <div style="position:absolute;top:20px;left:50%;transform:translateX(-50%);display:flex;gap:0.5rem;opacity:0.6;">
+            <span style="color:#ffd700;font-size:0.7rem;">★</span>
+            <span style="color:#c77dff;font-size:0.9rem;">★</span>
+            <span style="color:#4d96ff;font-size:0.7rem;">★</span>
+            <span style="color:#6bcb77;font-size:1rem;">★</span>
+            <span style="color:#ff6b6b;font-size:0.7rem;">★</span>
+            <span style="color:#ffd700;font-size:0.9rem;">★</span>
+            <span style="color:#c77dff;font-size:0.7rem;">★</span>
+          </div>
+
+          
+          <div style="font-size:0.65rem;font-weight:800;letter-spacing:5px;text-transform:uppercase;
+            background:linear-gradient(90deg,#4d96ff,#c77dff,#ff6b6b);
+            -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+            margin-bottom:0.3rem;margin-top:1rem;">
+            E-LEARNING PLATFORM
+          </div>
+
+          
+          <div style="font-size:0.7rem;font-weight:700;color:rgba(255,255,255,0.5);letter-spacing:4px;text-transform:uppercase;margin-bottom:1.1rem;">
+            Certificate of Completion
+          </div>
+
+          
+          <div style="display:flex;align-items:center;justify-content:center;gap:0.75rem;margin-bottom:1.2rem;">
+            <div style="height:1px;width:60px;background:linear-gradient(90deg,transparent,#ffd700);"></div>
+            <div style="font-size:1.3rem;">🏆</div>
+            <div style="height:1px;width:60px;background:linear-gradient(90deg,#ffd700,transparent);"></div>
+          </div>
+
+          
+          <div style="font-size:0.8rem;color:rgba(255,255,255,0.45);margin-bottom:0.5rem;letter-spacing:1px;">
+            THIS IS TO PROUDLY CERTIFY THAT
+          </div>
+
+          
+          <div style="font-family:Georgia,serif;font-size:2.4rem;font-weight:700;margin-bottom:0.4rem;
+            background:linear-gradient(135deg,#ffd700,#ffaa00,#ff8c00);
+            -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+            text-shadow:none;line-height:1.1;">
+            ${data.student_name}
+          </div>
+
+          
+          <div style="width:200px;height:2px;background:linear-gradient(90deg,transparent,#ffd700,transparent);margin:0.4rem auto 1rem;"></div>
+
+          <div style="font-size:0.82rem;color:rgba(255,255,255,0.45);margin-bottom:0.5rem;">
+            has successfully completed the course
+          </div>
+
+          
+          <div style="font-size:1.35rem;font-weight:800;margin-bottom:0.3rem;
+            background:linear-gradient(135deg,#6ee7f7,#a78bfa,#f472b6);
+            -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+            line-height:1.2;">
+            ${data.course_name}
+          </div>
+
+          
+          <div style="display:inline-flex;align-items:center;gap:0.4rem;
+            background:linear-gradient(135deg,rgba(16,185,129,0.2),rgba(5,150,105,0.2));
+            border:1px solid rgba(16,185,129,0.4);border-radius:999px;
+            padding:0.3rem 1rem;margin-top:0.6rem;margin-bottom:1.5rem;">
+            <span style="color:#6ee7b7;font-size:0.7rem;font-weight:800;letter-spacing:1px;">✓ WITH DISTINCTION</span>
+          </div>
+
+          
+          <div style="width:100%;height:2px;background:linear-gradient(90deg,#ff6b6b,#ffd93d,#6bcb77,#4d96ff,#c77dff);margin:0 auto 1.5rem;border-radius:999px;"></div>
+
+          
+          <div style="display:flex;justify-content:center;gap:3rem;flex-wrap:wrap;">
+            <div style="text-align:center;">
+              <div style="font-size:0.62rem;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:0.3rem;">Issue Date</div>
+              <div style="font-size:0.82rem;font-weight:700;color:#ffd700;">${data.issued_at}</div>
             </div>
-            <div style="display:flex;gap:0.75rem;justify-content:center;padding:1.5rem;">
-                <button onclick="window.print()" style="display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1.75rem;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-size:0.88rem;font-family:var(--font-main);">
-                    <i class="bi bi-download"></i> Download / Print
-                </button>
-                <button onclick="this.closest('[style]').remove()" style="padding:0.75rem 1.75rem;background:#f1f5f9;border:none;border-radius:10px;font-weight:600;cursor:pointer;font-size:0.88rem;font-family:var(--font-main);">Close</button>
+            <div style="text-align:center;">
+              <div style="font-size:0.62rem;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:0.3rem;">Certificate ID</div>
+              <div style="font-size:0.75rem;font-weight:700;color:#a78bfa;">${data.certificate_id}</div>
             </div>
-        </div>`;
-    document.body.appendChild(modal);
-    modal.onclick = (e) => { if(e.target === modal) modal.remove(); };
+            <div style="text-align:center;">
+              <div style="font-size:0.62rem;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:0.3rem;">Status</div>
+              <div style="font-size:0.82rem;font-weight:700;color:#6ee7b7;">✓ Verified</div>
+            </div>
+          </div>
+
+          
+          <div style="position:absolute;bottom:2rem;right:2.5rem;opacity:0.85;">
+            <div style="width:64px;height:64px;border-radius:50%;
+              background:conic-gradient(#ffd700,#ff8c00,#ff6b6b,#c77dff,#4d96ff,#6bcb77,#ffd700);
+              display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px rgba(255,215,0,0.5);">
+              <div style="width:52px;height:52px;border-radius:50%;background:#1a0533;
+                display:flex;align-items:center;justify-content:center;flex-direction:column;">
+                <span style="font-size:1.2rem;line-height:1;">🎓</span>
+                <span style="font-size:0.35rem;color:#ffd700;font-weight:800;letter-spacing:1px;">CERTIFIED</span>
+              </div>
+            </div>
+          </div>
+
+          
+          <div style="display:flex;justify-content:center;gap:0.5rem;margin-top:1.2rem;opacity:0.5;">
+            <span style="color:#ffd700;">⭐</span><span style="color:#c77dff;">⭐</span><span style="color:#4d96ff;">⭐</span>
+            <span style="color:#6bcb77;">⭐</span><span style="color:#ff6b6b;">⭐</span>
+          </div>
+        </div>
+
+        
+        <div style="height:8px;background:linear-gradient(90deg,#c77dff,#4d96ff,#6bcb77,#ffd93d,#ff6b6b,#c77dff);"></div>
+      </div>
+
+      
+      <div class="cert-no-print" style="display:flex;gap:0.75rem;justify-content:center;padding:1.25rem;background:white;border-radius:0 0 20px 20px;">
+        <button onclick="window.print()"
+          style="display:flex;align-items:center;gap:0.5rem;padding:0.75rem 2rem;
+          background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;border:none;
+          border-radius:10px;font-weight:700;cursor:pointer;font-size:0.88rem;
+          font-family:var(--font-main);box-shadow:0 4px 14px rgba(99,102,241,0.35);">
+          <i class="bi bi-download"></i> Download / Print
+        </button>
+        <button onclick="document.getElementById('certModalOverlay').remove();document.getElementById('certPrintStyle').remove();"
+          style="padding:0.75rem 1.75rem;background:#f1f5f9;border:none;border-radius:10px;
+          font-weight:600;cursor:pointer;font-size:0.88rem;font-family:var(--font-main);">
+          Close
+        </button>
+      </div>
+    </div>`;
+
+    document.body.appendChild(overlay);
+    overlay.onclick = (e) => {
+        if (e.target === overlay) {
+            overlay.remove();
+            document.getElementById('certPrintStyle')?.remove();
+        }
+    };
 }
 </script>
 {% endblock %}

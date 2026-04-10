@@ -7,7 +7,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         quizzes = [
-            # ── PYTHON PROGRAMMING (4 chapters) ─────────────────
             {
                 'chapter': 'Introduction to Python',
                 'title': 'Python Basics Quiz',
@@ -52,7 +51,6 @@ class Command(BaseCommand):
                     ('Default parameter value is set with?', ':', ':=', '=', '==', 'C'),
                 ]
             },
-            # ── VIDEO EDITING (3 chapters) ───────────────────────
             {
                 'chapter': 'Introduction to Video Editing',
                 'title': 'Video Editing Basics Quiz',
@@ -86,7 +84,6 @@ class Command(BaseCommand):
                     ('Saturation controls?', 'Brightness', 'Color intensity', 'Sharpness', 'Frame rate', 'B'),
                 ]
             },
-            # ── DATA SCIENCE (3 chapters) ────────────────────────
             {
                 'chapter': 'Introduction to Data Science & NumPy',
                 'title': 'NumPy & Data Science Basics Quiz',
@@ -120,7 +117,6 @@ class Command(BaseCommand):
                     ('Histogram shows?', 'Category comparison', 'Distribution of data', 'Trend over time', 'Correlation', 'B'),
                 ]
             },
-            # ── MACHINE LEARNING (2 chapters) ────────────────────
             {
                 'chapter': 'Introduction to ML',
                 'title': 'Machine Learning Basics Quiz',
@@ -143,7 +139,6 @@ class Command(BaseCommand):
                     ('SVM stands for?', 'Simple Vector Model', 'Support Vector Machine', 'System Variable Method', 'Supervised Value Model', 'B'),
                 ]
             },
-            # ── CYBER SECURITY (2 chapters) ──────────────────────
             {
                 'chapter': 'Introduction to Cyber Security',
                 'title': 'Cyber Security Basics Quiz',
@@ -166,7 +161,6 @@ class Command(BaseCommand):
                     ('Which port does HTTPS use?', '80', '21', '443', '22', 'C'),
                 ]
             },
-            # ── CLOUD COMPUTING (2 chapters) ─────────────────────
             {
                 'chapter': 'Introduction to Cloud Computing',
                 'title': 'Cloud Computing Basics Quiz',
@@ -189,7 +183,6 @@ class Command(BaseCommand):
                     ('Scalability in cloud means?', 'Fixed resources', 'Ability to increase/decrease resources', 'Only adding servers', 'Removing old data', 'B'),
                 ]
             },
-            # ── APP DEVELOPMENT (1 chapter) ──────────────────────
             {
                 'chapter': 'Introduction to App Development & Flutter',
                 'title': 'App Development & Flutter Quiz',
@@ -201,7 +194,6 @@ class Command(BaseCommand):
                     ('Hot reload in Flutter allows?', 'Restart server', 'See changes instantly without full restart', 'Build APK', 'Run tests', 'B'),
                 ]
             },
-            # ── DATABASE MANAGEMENT (2 chapters) ─────────────────
             {
                 'chapter': 'Introduction to Databases & SQL',
                 'title': 'Database & SQL Basics Quiz',
@@ -224,7 +216,6 @@ class Command(BaseCommand):
                     ('What does COUNT(*) do?', 'Sums values', 'Counts all rows', 'Averages values', 'Finds max', 'B'),
                 ]
             },
-            # ── ARTIFICIAL INTELLIGENCE (1 chapter) ──────────────
             {
                 'chapter': 'Introduction to AI & Neural Networks',
                 'title': 'AI & Neural Networks Quiz',
@@ -236,7 +227,6 @@ class Command(BaseCommand):
                     ('Activation function in neural network?', 'Starts training', 'Introduces non-linearity', 'Loads data', 'Saves model', 'B'),
                 ]
             },
-            # ── C++ PROGRAMMING (2 chapters) ─────────────────────
             {
                 'chapter': 'Introduction to C++',
                 'title': 'C++ Basics Quiz',

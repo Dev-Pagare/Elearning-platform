@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reply to Message | E-Learning Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a1628 0%, #0d1f3c 50%, #0f2a4a 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        .reply-card {
+            width: 100%;
+            max-width: 760px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+
+        
+        .card-header {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            padding: 1.75rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .header-icon {
+            width: 48px; height: 48px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem; color: white; flex-shrink: 0;
+        }
+        .card-header h1 {
+            font-size: 1.3rem; font-weight: 700; color: white; margin-bottom: 2px;
+        }
+        .card-header p { font-size: 0.82rem; color: rgba(255,255,255,0.75); }
+
+        
+        .card-body { padding: 2rem; }
+
+        
+        .original-message {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 14px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .original-message .meta-row {
+            display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 1rem;
+        }
+        .badge {
+            display: inline-flex; align-items: center; gap: 0.35rem;
+            padding: 0.3rem 0.85rem;
+            border-radius: 999px; font-size: 0.75rem; font-weight: 600;
+        }
+        .badge-blue  { background: rgba(99,102,241,0.2); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.3); }
+        .badge-green { background: rgba(34,197,94,0.15); color: #86efac; border: 1px solid rgba(34,197,94,0.25); }
+        .badge-amber { background: rgba(245,158,11,0.15); color: #fcd34d; border: 1px solid rgba(245,158,11,0.25); }
+
+        .msg-subject {
+            font-size: 1rem; font-weight: 700; color: white; margin-bottom: 0.75rem;
+        }
+        .msg-body {
+            font-size: 0.88rem; color: rgba(255,255,255,0.7);
+            line-height: 1.75; white-space: pre-wrap;
+            background: rgba(0,0,0,0.2); border-radius: 10px;
+            padding: 1rem 1.2rem;
+        }
+
+        
+        .section-label {
+            font-size: 0.72rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 1.5px;
+            color: rgba(255,255,255,0.45); margin-bottom: 0.6rem;
+            display: flex; align-items: center; gap: 0.4rem;
+        }
+        .reply-textarea {
+            width: 100%;
+            background: rgba(255,255,255,0.06);
+            border: 1.5px solid rgba(255,255,255,0.12);
+            border-radius: 14px;
+            padding: 1.1rem 1.25rem;
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            line-height: 1.7;
+            resize: vertical;
+            min-height: 160px;
+            outline: none;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .reply-textarea::placeholder { color: rgba(255,255,255,0.3); }
+        .reply-textarea:focus {
+            border-color: #6366f1;
+            background: rgba(99,102,241,0.06);
+        }
+
+        
+        .btn-row {
+            display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap;
+        }
+        .btn {
+            padding: 0.85rem 1.75rem;
+            border: none; border-radius: 12px;
+            font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 700;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem;
+            transition: all 0.25s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white; box-shadow: 0 4px 20px rgba(99,102,241,0.35);
+            flex: 1; justify-content: center;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(99,102,241,0.5); }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.07);
+            color: rgba(255,255,255,0.7);
+            border: 1px solid rgba(255,255,255,0.12);
+        }
+        .btn-secondary:hover { background: rgba(255,255,255,0.12); color: white; }
+
+        
+        .alert {
+            display: none; align-items: flex-start; gap: 1rem;
+            padding: 1rem 1.25rem; border-radius: 12px;
+            margin-top: 1.25rem; font-size: 0.88rem;
+        }
+        .alert i { font-size: 1.3rem; flex-shrink: 0; }
+        .alert p { margin: 0; }
+        .alert strong { display: block; margin-bottom: 2px; }
+
+        .alert-success {
+            background: rgba(34,197,94,0.12);
+            border: 1px solid rgba(34,197,94,0.3);
+            color: #86efac;
+        }
+        .alert-error {
+            background: rgba(239,68,68,0.12);
+            border: 1px solid rgba(239,68,68,0.3);
+            color: #fca5a5;
+        }
+
+        
+        .previous-reply {
+            background: rgba(34,197,94,0.07);
+            border: 1px solid rgba(34,197,94,0.2);
+            border-radius: 12px; padding: 1rem 1.25rem;
+            margin-bottom: 1.5rem; font-size: 0.85rem;
+            color: #86efac;
+        }
+        .previous-reply strong { display: block; margin-bottom: 0.4rem; color: #a7f3d0; }
+        .previous-reply p { white-space: pre-wrap; color: rgba(167,243,208,0.8); margin: 0; }
+
+        @media (max-width: 576px) {
+            .card-body { padding: 1.25rem; }
+            .btn-row { flex-direction: column; }
+            .btn-primary { flex: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="reply-card">
+    
+    <div class="card-header">
+        <div class="header-icon"><i class="bi bi-reply-fill"></i></div>
+        <div>
+            <h1>Reply to Message</h1>
+            <p>Send a reply directly to the user's inbox via EmailJS</p>
+        </div>
+    </div>
+
+    
+    <div class="card-body">
+
+        
+        <div class="original-message">
+            <div class="meta-row">
+                <span class="badge badge-blue"><i class="bi bi-person-fill"></i> {{ msg.name }}</span>
+                <span class="badge badge-blue"><i class="bi bi-envelope-fill"></i> {{ msg.email }}</span>
+                <span class="badge badge-amber"><i class="bi bi-clock"></i> {{ msg.submitted_at|date:"M d, Y H:i" }}</span>
+                {% if msg.is_replied %}
+                <span class="badge badge-green"><i class="bi bi-check-circle-fill"></i> Already Replied</span>
+                {% endif %}
+            </div>
+            <div class="msg-subject">{{ msg.subject }}</div>
+            <div class="msg-body">{{ msg.message }}</div>
+        </div>
+
+        
+        {% if msg.is_replied and msg.admin_reply %}
+        <div class="previous-reply">
+            <strong><i class="bi bi-chat-left-text-fill"></i> Previous Reply Sent:</strong>
+            <p>{{ msg.admin_reply }}</p>
+        </div>
+        {% endif %}
+
+        
+        <div class="section-label"><i class="bi bi-pencil-fill"></i> Your Reply</div>
+        <textarea
+            class="reply-textarea"
+            id="replyText"
+            placeholder="Type your reply here... Be clear and helpful!"
+        >{% if msg.admin_reply %}{{ msg.admin_reply }}{% endif %}</textarea>
+
+        
+        <div class="alert alert-success" id="successAlert">
+            <i class="bi bi-check-circle-fill"></i>
+            <div><strong>Reply Sent!</strong><p>Your reply has been emailed to {{ msg.email }} and saved.</p></div>
+        </div>
+        <div class="alert alert-error" id="errorAlert">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <div><strong>Failed to Send</strong><p id="errorMsg">Please try again.</p></div>
+        </div>
+
+        <div class="btn-row">
+            <button class="btn btn-secondary" onclick="window.history.back()">
+                <i class="bi bi-arrow-left"></i> Back
+            </button>
+            <button class="btn btn-primary" id="sendBtn" onclick="sendReply()">
+                <i class="bi bi-send-fill"></i> Send Reply
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const msgId = "{{ msg.pk }}";
+
+    function getCookie(name) {
+        let v = null;
+        document.cookie.split(';').forEach(c => {
+            const t = c.trim();
+            if (t.startsWith(name + '=')) v = decodeURIComponent(t.slice(name.length + 1));
+        });
+        return v;
+    }
+
+    async function sendReply() {
+        const replyText   = document.getElementById('replyText').value.trim();
+        const btn         = document.getElementById('sendBtn');
+        const successAlert = document.getElementById('successAlert');
+        const errorAlert   = document.getElementById('errorAlert');
+
+        successAlert.style.display = 'none';
+        errorAlert.style.display   = 'none';
+
+        if (!replyText) {
+            errorAlert.style.display = 'flex';
+            document.getElementById('errorMsg').textContent = 'Reply cannot be empty.';
+            return;
+        }
+
+        btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Saving...';
+        btn.disabled = true;
+
+        try {
+            const dbRes = await fetch(`/admin_reply/${msgId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: `reply_text=${encodeURIComponent(replyText)}`,
+            });
+            const dbData = await dbRes.json();
+            if (dbData.status !== 'ok') throw new Error(dbData.message || 'Save failed');
+
+            successAlert.style.display = 'flex';
+            btn.innerHTML = '<i class="bi bi-check-lg"></i> Saved Successfully';
+
+        } catch (err) {
+            console.error(err);
+            errorAlert.style.display = 'flex';
+            document.getElementById('errorMsg').textContent = err.message || 'Something went wrong.';
+            btn.innerHTML = '<i class="bi bi-send-fill"></i> Send Reply';
+            btn.disabled = false;
+        }
+    }
+</script>
+
+</body>
+</html>

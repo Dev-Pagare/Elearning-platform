@@ -6,16 +6,20 @@ urlpatterns = [
     path('course_description_page/', views.course_description_page, name='course_description_page'),
     path('login_page/', views.login_page, name='login_page'),
     path('signup_page/', views.signup_page, name='signup_page'),
+    path('forgot_password/', views.forgot_password_page, name='forgot_password_page'),
     path('profile_page/', views.profile_page, name='profile_page'),
     path('request_page/', views.request_page, name='request_page'),
     path('enrolled_courses_page/', views.enrolled_courses_page, name='enrolled_courses_page'),
     path('contact/', views.contact_page, name='contact_page'),
     path('dashboard/', views.dashboard_page, name='dashboard_page'),
+    path('search/', views.search_page, name='search_page'),   # NEW
 
     path('all_courses/', views.all_courses, name='all_courses'),
     path('student_info/', views.student_info, name='student_info'),
     path('login/', views.login_view, name='login'),
     path('signup/', views.signup, name='signup'),
+    path('forgot_password_verify/', views.forgot_password_verify, name='forgot_password_verify'),
+    path('forgot_password_reset/', views.forgot_password_reset, name='forgot_password_reset'),
     path('get_course_request/', views.get_course_request, name='get_course_request'),
     path('creat_course_request/', views.creat_course_request, name='creat_course_request'),
     path('get_course/', views.get_course, name='get_course'),
@@ -29,8 +33,19 @@ urlpatterns = [
     path('get_progress/', views.get_progress, name='get_progress'),
     path('get_certificate/', views.get_certificate, name='get_certificate'),
     path('get_dashboard/', views.get_dashboard, name='get_dashboard'),
-
-    # Notifications
     path('get_notifications/', views.get_notifications, name='get_notifications'),
     path('mark_notifications_read/', views.mark_notifications_read, name='mark_notifications_read'),
+    path('get_reviews/', views.get_reviews, name='get_reviews'),
+    path('submit_review/', views.submit_review, name='submit_review'),
+    path('admin_reply/<int:pk>/', views.reply_contact_message, name='reply_contact_message'),
+
+    path('admin/login/',                    views.admin_login_view,      name='admin_login'),
+    path('admin/logout/',                   views.admin_logout_view,     name='admin_logout'),
+    path('admin/',                          views.admin_home_view,       name='admin_home'),
+    path('admin/course/add/',               views.admin_add_course,      name='admin_add_course'),
+    path('admin/course/delete/<int:pk>/',   views.admin_delete_course,   name='admin_delete_course'),
+    path('admin/course/toggle/<int:pk>/',   views.admin_toggle_course,   name='admin_toggle_course'),
+    path('admin/request/approve/<int:pk>/', views.admin_approve_request, name='admin_approve_request'),
+    path('admin/request/reject/<int:pk>/',  views.admin_reject_request,  name='admin_reject_request'),
+    path('admin/message/read/<int:pk>/',    views.admin_mark_msg_read,   name='admin_mark_msg_read'),
 ]

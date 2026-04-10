@@ -3,11 +3,11 @@
 {% block content %}
 <div style="padding-top: var(--nav-height); min-height:100vh; background:var(--bg); display:flex;">
 
-    <!-- Sidebar -->
+    
     <div class="learn-sidebar" id="learnSidebar">
         <div class="learn-sidebar-header">
             <h3 id="sidebar-course-name">Loading...</h3>
-            <!-- Progress Bar in Sidebar -->
+            
             <div class="sidebar-progress-wrap">
                 <div class="sidebar-progress-bar" id="sidebarProgressBar" style="width:0%"></div>
             </div>
@@ -21,7 +21,7 @@
         <div id="sidebar-chapters"></div>
     </div>
 
-    <!-- Main Content -->
+    
     <div class="learn-main" id="learnMain">
         <div class="learn-topbar">
             <button class="sidebar-toggle" onclick="toggleSidebar()">
@@ -43,7 +43,7 @@
     </div>
 </div>
 
-<!-- Quiz Modal -->
+
 <div id="quizModal" class="quiz-modal" onclick="handleModalClick(event)">
     <div class="quiz-modal-inner" id="quizModalInner">
         <button class="quiz-modal-close" onclick="closeQuiz()"><i class="bi bi-x-lg"></i></button>
@@ -51,7 +51,7 @@
     </div>
 </div>
 
-<!-- Certificate Modal -->
+
 <div id="certModal" class="quiz-modal" onclick="handleCertModalClick(event)">
     <div class="quiz-modal-inner" style="max-width:720px;padding:0;overflow:hidden;">
         <button class="quiz-modal-close" onclick="closeCertificate()"><i class="bi bi-x-lg"></i></button>
@@ -60,7 +60,7 @@
 </div>
 
 <style>
-/* Sidebar Progress */
+
 .sidebar-progress-wrap {
     height: 4px; background: rgba(255,255,255,0.1);
     border-radius: 999px; margin: 0.75rem 0 0.4rem;
@@ -134,7 +134,7 @@
 .no-access-box .lock-icon { width: 80px; height: 80px; background: var(--primary-light); color: var(--primary); border-radius: 50%; font-size: 2rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; }
 .pending-box { background: var(--accent-light); border: 1px solid rgba(245,158,11,0.3); border-radius: var(--radius); padding: 1.5rem; text-align: center; margin-top: 1rem; }
 
-/* QUIZ MODAL */
+
 .quiz-modal { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.75); backdrop-filter: blur(6px); align-items: center; justify-content: center; padding: 1rem; }
 .quiz-modal.active { display: flex; animation: fadeIn 0.25s ease; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -176,7 +176,7 @@
 .review-section { margin-top: 1.5rem; text-align: left; }
 .review-title { font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; color: #0f172a; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e5e7eb; }
 
-/* CERTIFICATE */
+
 .certificate-wrap {
     background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
     padding: 3rem 2.5rem; text-align: center; position: relative;
@@ -205,7 +205,7 @@
 .cert-download-btn:hover { opacity: 0.9; transform: translateY(-1px); }
 .cert-close-btn2 { display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.75rem; background: #f1f5f9; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 0.88rem; font-family: var(--font-main); transition: all 0.2s; }
 
-/* Completion banner */
+
 .completion-banner {
     background: linear-gradient(135deg, #10b981, #059669);
     color: white; padding: 1rem 2rem;
@@ -267,7 +267,6 @@ window.onload = async function() {
     const contentData = await contentRes.json();
     renderSidebar(contentData.chapters);
 
-    // Load progress
     loadProgress();
 };
 
@@ -502,7 +501,6 @@ function printCertificate() {
 function closeCertificate() { document.getElementById('certModal').classList.remove('active'); }
 function handleCertModalClick(e) { if (e.target === document.getElementById('certModal')) closeCertificate(); }
 
-// ===== QUIZ =====
 async function loadQuiz(chapterId) {
     const uname = getUsername();
     const res = await fetch(`/get_quiz/?chapter_id=${chapterId}&username=${uname}`);

@@ -2,7 +2,7 @@
 {% block content %}
 {% load static %}
 
-<!-- ===================== HOME ===================== -->
+
 <section id="home">
     <div class="home-bg">
         <div class="home-grid"></div>
@@ -49,7 +49,7 @@
             </div>
         </div>
 
-        <!-- Hero Thumbnail -->
+        
         <div class="home-visual">
             <div class="home-card-main">
                 <div class="video-thumb-wrap" onclick="playVideo()">
@@ -70,7 +70,7 @@
                 </div>
             </div>
 
-            <!-- Video Modal -->
+            
             <div class="video-modal" id="videoModal" onclick="closeVideo()">
                 <div class="video-modal-inner" onclick="event.stopPropagation()">
                     <button class="modal-close" onclick="closeVideo()"><i class="bi bi-x-lg"></i></button>
@@ -102,7 +102,7 @@ document.addEventListener('keydown', e => { if(e.key === 'Escape') closeVideo();
 </script>
 </section>
 
-<!-- ===================== ABOUT ===================== -->
+
 <section id="about">
     <div class="container">
         <div class="section-label">Why Choose Us</div>
@@ -131,7 +131,7 @@ document.addEventListener('keydown', e => { if(e.key === 'Escape') closeVideo();
     </div>
 </section>
 
-<!-- ===================== COURSES ===================== -->
+
 <section id="courses">
     <div class="container">
         <div class="section-label">Our Courses</div>
@@ -156,12 +156,12 @@ document.addEventListener('keydown', e => { if(e.key === 'Escape') closeVideo();
             </div>
         </div>
 
-        <!-- Grid — script loads AFTER this div -->
+        
         <div id="course-container" class="courses-grid"></div>
     </div>
 </section>
 
-<!-- ===================== TESTIMONIALS ===================== -->
+
 <section id="testimonials">
     <div class="container">
         <div class="section-label">Student Reviews</div>
@@ -205,7 +205,7 @@ document.addEventListener('keydown', e => { if(e.key === 'Escape') closeVideo();
     </div>
 </section>
 
-<!-- ===================== HOW IT WORKS ===================== -->
+
 <section id="subscribe">
     <div class="container">
         <div class="section-label">Simple Process</div>
@@ -253,7 +253,7 @@ document.addEventListener('keydown', e => { if(e.key === 'Escape') closeVideo();
     </div>
 </section>
 
-<!-- Script loads AFTER the course-container div exists in DOM -->
+
 <script src="{% static 'JS/script.js' %}"></script>
 
 {% endblock %}

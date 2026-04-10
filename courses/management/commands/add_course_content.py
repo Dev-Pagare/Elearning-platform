@@ -27,11 +27,9 @@ Where is Python Used?
                     "code": """# Your first Python program
 print("Hello, World!")
 
-# Check Python version
 import sys
 print(sys.version)
 
-# Python is easy to read
 name = "Alice"
 age = 20
 print(f"My name is {name} and I am {age} years old.")"""
@@ -57,12 +55,9 @@ Step 3 — Write Your First Program:
 - Type your code
 - Press F5 or right-click and Run Python File""",
                     "code": """# Verify Python is installed in terminal:
-# python --version
 
-# hello.py
 print("Python is ready!")
 
-# Simple calculator
 a = 10
 b = 5
 print("Sum:", a + b)
@@ -98,17 +93,14 @@ age = 25
 height = 5.11
 is_student = True
 
-# Print variables
 print(name)         # John
 print(age)          # 25
 print(height)       # 5.11
 print(is_student)   # True
 
-# Multiple assignment
 x, y, z = 10, 20, 30
 print(x, y, z)      # 10 20 30
 
-# Same value to multiple variables
 a = b = c = 100
 print(a, b, c)      # 100 100 100"""
                 },
@@ -130,27 +122,21 @@ Use type() function to check the data type of any variable.""",
 age = 25
 print(type(age))          # <class 'int'>
 
-# Float
 pi = 3.14159
 print(type(pi))           # <class 'float'>
 
-# String
 name = "Python"
 print(type(name))         # <class 'str'>
 
-# Boolean
 is_active = True
 print(type(is_active))    # <class 'bool'>
 
-# List
 fruits = ["apple", "banana", "cherry"]
 print(fruits[0])          # apple
 
-# Dictionary
 student = {"name": "John", "age": 20, "grade": "A"}
 print(student["name"])    # John
 
-# Type conversion
 x = "100"
 y = int(x)                # String to int
 print(y + 50)             # 150"""
@@ -187,7 +173,6 @@ if age >= 18:
 else:
     print("You are a minor")
 
-# if-elif-else
 marks = 75
 if marks >= 90:
     grade = "A+"
@@ -201,7 +186,6 @@ else:
     grade = "F"
 print(f"Your grade is: {grade}")  # B
 
-# Logical operators
 username = "admin"
 password = "1234"
 if username == "admin" and password == "1234":
@@ -230,24 +214,20 @@ range() function:
 for i in range(5):
     print(i)   # 0 1 2 3 4
 
-# Loop through a list
 fruits = ["apple", "banana", "cherry"]
 for fruit in fruits:
     print(fruit)
 
-# while loop
 count = 1
 while count <= 5:
     print(f"Count: {count}")
     count += 1
 
-# break example
 for i in range(10):
     if i == 5:
         break
     print(i)   # 0 1 2 3 4
 
-# continue — skip even numbers
 for i in range(10):
     if i % 2 == 0:
         continue
@@ -284,27 +264,23 @@ def greet():
 
 greet()   # Hello, Welcome!
 
-# Function with parameters
 def greet_user(name):
     print(f"Hello, {name}!")
 
 greet_user("Alice")   # Hello, Alice!
 
-# Function with return value
 def add(a, b):
     return a + b
 
 result = add(5, 3)
 print(result)   # 8
 
-# Default parameter values
 def greet(name, message="Good morning"):
     print(f"{message}, {name}!")
 
 greet("John")              # Good morning, John!
 greet("Alice", "Hi")       # Hi, Alice!
 
-# Lambda function
 square = lambda x: x ** 2
 print(square(5))   # 25"""
                 }
@@ -463,7 +439,6 @@ Career Paths:
 - Business Intelligence Analyst
 - Data Engineer""",
                     "code": """# Install required libraries
-# pip install pandas numpy matplotlib seaborn
 
 import pandas as pd
 import numpy as np
@@ -494,7 +469,6 @@ Array vs List:
 - Arrays support mathematical operations directly""",
                     "code": """import numpy as np
 
-# Create arrays
 arr1 = np.array([1, 2, 3, 4, 5])
 arr2 = np.array([[1, 2, 3], [4, 5, 6]])
 
@@ -503,7 +477,6 @@ print("2D Array:\n", arr2)
 print("Shape:", arr2.shape)     # (2, 3)
 print("Size:", arr2.size)       # 6
 
-# Mathematical operations
 print(arr1 * 2)                 # [2 4 6 8 10]
 print(arr1 + 10)                # [11 12 13 14 15]
 print(np.mean(arr1))            # 3.0
@@ -511,7 +484,6 @@ print(np.sum(arr1))             # 15
 print(np.max(arr1))             # 5
 print(np.min(arr1))             # 1
 
-# Create special arrays
 zeros = np.zeros((3, 3))
 ones = np.ones((2, 4))
 random = np.random.rand(3, 3)"""
@@ -539,7 +511,6 @@ Common Pandas Operations:
 - Sorting and filtering""",
                     "code": """import pandas as pd
 
-# Create a DataFrame
 data = {
     "Name": ["Alice", "Bob", "Charlie", "Diana"],
     "Age": [25, 30, 35, 28],
@@ -549,20 +520,16 @@ data = {
 df = pd.DataFrame(data)
 print(df)
 
-# Basic operations
 print(df.shape)          # (4, 4)
 print(df.dtypes)         # data types
 print(df.describe())     # statistics
 
-# Select columns
 print(df["Name"])
 print(df[["Name", "Score"]])
 
-# Filter rows
 print(df[df["Age"] > 27])
 print(df[df["Score"] >= 90])
 
-# Sort
 print(df.sort_values("Score", ascending=False))"""
                 }
             ]
@@ -597,7 +564,6 @@ When to use which chart:
 import seaborn as sns
 import numpy as np
 
-# Line plot
 x = np.linspace(0, 10, 100)
 y = np.sin(x)
 plt.plot(x, y)
@@ -606,14 +572,12 @@ plt.xlabel("X axis")
 plt.ylabel("Y axis")
 plt.show()
 
-# Bar chart
 categories = ["Python", "JavaScript", "Java", "C++"]
 values = [45, 30, 15, 10]
 plt.bar(categories, values, color=["blue","orange","green","red"])
 plt.title("Programming Language Popularity")
 plt.show()
 
-# Scatter plot
 x = np.random.rand(50)
 y = np.random.rand(50)
 plt.scatter(x, y, color="purple", alpha=0.6)
@@ -659,12 +623,10 @@ Real-world Applications:
 - Self-driving cars
 - Medical diagnosis""",
                     "code": """# Install scikit-learn
-# pip install scikit-learn
 
 from sklearn import datasets
 import pandas as pd
 
-# Load famous Iris dataset
 iris = datasets.load_iris()
 df = pd.DataFrame(iris.data, columns=iris.feature_names)
 df["target"] = iris.target
@@ -706,24 +668,19 @@ from sklearn.metrics import mean_squared_error, r2_score
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Generate sample data
 np.random.seed(42)
 X = np.random.rand(100, 1) * 10
 y = 2.5 * X + np.random.randn(100, 1) * 2
 
-# Split data
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42
 )
 
-# Train model
 model = LinearRegression()
 model.fit(X_train, y_train)
 
-# Predict
 y_pred = model.predict(X_test)
 
-# Evaluate
 print(f"R² Score: {r2_score(y_test, y_pred):.3f}")
 print(f"RMSE: {np.sqrt(mean_squared_error(y_test, y_pred)):.3f}")"""
                 },
@@ -758,20 +715,16 @@ from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, classification_report
 
-# Load data
 iris = load_iris()
 X, y = iris.data, iris.target
 
-# Split data
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42
 )
 
-# Train Decision Tree
 clf = DecisionTreeClassifier(max_depth=3, random_state=42)
 clf.fit(X_train, y_train)
 
-# Predict and evaluate
 y_pred = clf.predict(X_test)
 print(f"Accuracy: {accuracy_score(y_test, y_pred):.3f}")
 print(classification_report(y_test, y_pred,
@@ -1362,7 +1315,6 @@ def simple_chatbot(user_input):
     
     return "I don't understand that yet. I'm still learning!"
 
-# Test the chatbot
 print(simple_chatbot("Hello!"))
 print(simple_chatbot("What is AI?"))
 print(simple_chatbot("How are you?"))"""
@@ -1397,10 +1349,8 @@ Training Process:
 5. Repeat for many epochs""",
                     "code": """import numpy as np
 
-# Simple Neural Network from scratch
 class NeuralNetwork:
     def __init__(self):
-        # Initialize random weights
         self.weights = np.random.randn(2, 1)
         self.bias = np.random.randn(1)
     
@@ -1414,11 +1364,9 @@ class NeuralNetwork:
         for _ in range(epochs):
             output = self.forward(X)
             error = y - output
-            # Gradient descent
             self.weights += lr * np.dot(X.T, error * output * (1 - output))
             self.bias += lr * np.sum(error * output * (1 - output))
 
-# XOR problem
 X = np.array([[0,0],[0,1],[1,0],[1,1]])
 y = np.array([[0],[1],[1],[0]])
 
@@ -1466,7 +1414,6 @@ C vs C++ vs Java vs Python:
 - Python — Slowest, simplest, rapid development
 - C — Fastest, lowest level, no OOP""",
                     "code": """// Your first C++ program
-#include <iostream>
 using namespace std;
 
 int main() {
@@ -1516,7 +1463,6 @@ Type Casting:
 - Implicit — automatic conversion
 - Explicit — manual conversion using (type)""",
                     "code": """#include <iostream>
-#include <string>
 using namespace std;
 
 int main() {
@@ -1583,7 +1529,6 @@ Benefits of OOP:
 - Easy to maintain and modify
 - Models real-world entities naturally""",
                     "code": """#include <iostream>
-#include <string>
 using namespace std;
 
 // Define a class
@@ -1652,7 +1597,6 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.WARNING(f'Course not found: {course_name}'))
                 continue
 
-            # Delete existing chapters
             course.chapters.all().delete()
 
             for ch_data in chapters:

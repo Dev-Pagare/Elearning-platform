@@ -32,22 +32,22 @@
                 <li class="nav-item"><a class="nav-link nav-pill" href="{% url 'enrolled_courses_page' %}">My Courses</a></li>
             </ul>
 
-            <!-- Logged OUT -->
+            
             <div class="d-flex align-items-center gap-2 mt-2 mt-lg-0" id="nav-auth-btns">
                 <a href="{% url 'login_page' %}" class="btn btn-nav-outline">Login</a>
                 <a href="{% url 'signup_page' %}" class="btn btn-nav-solid">Sign Up</a>
             </div>
 
-            <!-- Logged IN -->
+            
             <div class="d-flex align-items-center gap-2 mt-2 mt-lg-0 d-none" id="nav-user-btns">
 
-                <!-- Dashboard -->
+                
                 <a href="{% url 'dashboard_page' %}"
                    style="background:rgba(99,102,241,0.2);color:#a5b4fc;border:1.5px solid rgba(99,102,241,0.4);border-radius:10px;padding:0.45rem 1rem;font-size:0.82rem;font-weight:700;text-decoration:none;display:flex;align-items:center;gap:0.4rem;">
                     <i class="bi bi-grid-fill"></i> Dashboard
                 </a>
 
-                <!-- 🔔 Notification Bell -->
+                
                 <div style="position:relative;" id="notifWrapper">
                     <button id="notifBell"
                         onclick="toggleNotifDropdown()"
@@ -59,7 +59,7 @@
                         </span>
                     </button>
 
-                    <!-- Dropdown -->
+                    
                     <div id="notifDropdown"
                          style="display:none;position:absolute;right:0;top:calc(100% + 10px);width:340px;background:white;border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,0.18);z-index:9999;overflow:hidden;border:1px solid #e5e7eb;">
                         <div style="padding:1rem 1.25rem;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;">
@@ -154,11 +154,9 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-// Navbar scroll
 const navEl = document.getElementById('mainNav');
 window.addEventListener('scroll', () => navEl.classList.toggle('scrolled', window.scrollY > 40));
 
-// Show/hide login buttons
 (function () {
     const token = localStorage.getItem('token');
     document.getElementById('nav-auth-btns').classList.toggle('d-none', !!token);
@@ -171,7 +169,6 @@ function logoutUser() {
     window.location.href = "{% url 'index' %}";
 }
 
-// ── NOTIFICATIONS ─────────────────────────────────
 function getUsername() {
     try {
         const tok = localStorage.getItem('token');
@@ -255,7 +252,6 @@ async function markAllRead() {
     await loadNotifications();
 }
 
-// Close dropdown when clicking outside
 document.addEventListener('click', function(e) {
     const wrapper = document.getElementById('notifWrapper');
     if (wrapper && !wrapper.contains(e.target)) {
@@ -263,7 +259,6 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// Auto-refresh every 30 seconds
 setInterval(() => {
     if (localStorage.getItem('token')) loadNotifications();
 }, 30000);

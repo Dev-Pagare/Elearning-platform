@@ -1,0 +1,521 @@
+{% extends 'nav.html' %}{% load static %}{% block content %}
+
+<style>
+.search-page {
+    min-height: 100vh;
+    background: var(--bg);
+    padding: calc(var(--nav-height) + 40px) 0 80px;
+}
+
+
+.search-hero {
+    background: var(--dark);
+    padding: calc(var(--nav-height) + 50px) 0 60px;
+    position: relative; overflow: hidden;
+}
+.search-hero::before {
+    content:''; position:absolute;
+    width:500px;height:500px;
+    background:var(--primary);border-radius:50%;
+    filter:blur(100px);opacity:0.1;
+    top:-150px;right:-100px;
+}
+.search-hero-grid {
+    position:absolute;inset:0;
+    background-image:
+        linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px);
+    background-size:60px 60px;
+}
+.search-hero-inner { position:relative;z-index:2;text-align:center; }
+.search-hero-title {
+    font-family:var(--font-display);
+    font-size:clamp(1.8rem,4vw,2.8rem);
+    font-weight:700;color:white;
+    letter-spacing:-1px;margin-bottom:0.5rem;
+}
+.search-hero-sub {
+    color:rgba(255,255,255,0.45);
+    font-size:0.95rem;margin-bottom:2rem;
+}
+
+
+.big-search-box {
+    max-width:650px;margin:0 auto;
+    position:relative;display:flex;align-items:center;
+}
+.big-search-box input {
+    width:100%;
+    padding:1rem 3.5rem 1rem 3.5rem;
+    border:2px solid rgba(255,255,255,0.12);
+    border-radius:999px;
+    background:rgba(255,255,255,0.06);
+    backdrop-filter:blur(12px);
+    color:white;font-family:var(--font-main);
+    font-size:1rem;outline:none;
+    transition:all 0.25s;
+}
+.big-search-box input::placeholder { color:rgba(255,255,255,0.3); }
+.big-search-box input:focus {
+    border-color:rgba(99,102,241,0.6);
+    background:rgba(255,255,255,0.09);
+    box-shadow:0 0 0 4px rgba(99,102,241,0.15);
+}
+.big-search-icon {
+    position:absolute;left:1.2rem;
+    color:rgba(255,255,255,0.45);font-size:1.1rem;
+    pointer-events:none;
+}
+.big-search-clear {
+    position:absolute;right:1.1rem;
+    background:rgba(255,255,255,0.1);border:none;
+    border-radius:50%;width:28px;height:28px;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;color:rgba(255,255,255,0.5);
+    font-size:0.85rem;transition:all 0.2s;
+}
+.big-search-clear:hover { background:rgba(239,68,68,0.2);color:#fca5a5; }
+
+
+.filters-strip {
+    background:white;
+    border-bottom:1px solid var(--border);
+    padding:1rem 0;
+    position:sticky;top:var(--nav-height);
+    z-index:99;
+    box-shadow:0 2px 12px rgba(0,0,0,0.05);
+}
+.filters-inner {
+    display:flex;align-items:center;
+    gap:1rem;flex-wrap:wrap;
+    justify-content:center;
+}
+.filter-group {
+    display:flex;align-items:center;gap:0.4rem;
+    flex-wrap:wrap;justify-content:center;
+}
+.filter-group-label {
+    font-size:0.72rem;font-weight:700;
+    color:var(--text-muted);text-transform:uppercase;
+    letter-spacing:0.8px;white-space:nowrap;
+}
+.ftag {
+    padding:0.35rem 0.9rem;
+    border:1.5px solid var(--border);
+    border-radius:999px;background:white;
+    font-size:0.75rem;font-weight:600;
+    color:var(--text-muted);cursor:pointer;
+    transition:all 0.2s;font-family:var(--font-main);
+    white-space:nowrap;
+}
+.ftag:hover { border-color:var(--primary);color:var(--primary); }
+.ftag.active {
+    background:var(--gradient);border-color:transparent;
+    color:white;box-shadow:0 3px 10px rgba(99,102,241,0.28);
+}
+.filter-sep {
+    width:1px;height:24px;
+    background:var(--border);flex-shrink:0;
+}
+.price-ftag { }
+.price-ftag.active-free { background:linear-gradient(135deg,#10b981,#059669);border-color:transparent;color:white; }
+.price-ftag.active-paid { background:linear-gradient(135deg,#6366f1,#8b5cf6);border-color:transparent;color:white; }
+
+
+.search-results-area {
+    max-width:1200px;margin:2rem auto;
+    padding:0 1.5rem;
+}
+.results-meta {
+    display:flex;align-items:center;
+    justify-content:space-between;
+    margin-bottom:1.5rem;flex-wrap:wrap;gap:0.5rem;
+}
+.results-count {
+    font-family:var(--font-display);
+    font-size:0.92rem;font-weight:600;color:var(--text-muted);
+}
+.results-count strong { color:var(--dark); }
+.sort-select {
+    padding:0.4rem 0.9rem;
+    border:1.5px solid var(--border);
+    border-radius:999px;background:white;
+    font-family:var(--font-main);font-size:0.78rem;
+    font-weight:600;color:var(--text);outline:none;cursor:pointer;
+    transition:border 0.2s;
+}
+.sort-select:focus { border-color:var(--primary); }
+
+
+.results-grid {
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:1.5rem;
+}
+@media(max-width:992px){ .results-grid{ grid-template-columns:repeat(2,1fr); } }
+@media(max-width:600px){ .results-grid{ grid-template-columns:1fr; } }
+
+
+.sr-card {
+    background:white;border:1px solid var(--border);
+    border-radius:var(--radius);overflow:hidden;
+    transition:all 0.3s;box-shadow:var(--shadow-sm);
+    display:flex;flex-direction:column;
+    text-decoration:none;color:inherit;
+    cursor:pointer;
+}
+.sr-card:hover {
+    transform:translateY(-6px);
+    box-shadow:var(--shadow-lg);
+    border-color:rgba(99,102,241,0.18);
+    color:inherit;
+}
+.sr-card-img {
+    width:100%;height:175px;object-fit:cover;
+    display:block;transition:transform 0.4s;
+}
+.sr-card:hover .sr-card-img { transform:scale(1.05); }
+.sr-card-img-wrap { overflow:hidden;position:relative; }
+.sr-cat-tag {
+    position:absolute;top:10px;left:10px;
+    background:rgba(0,0,0,0.55);backdrop-filter:blur(6px);
+    color:white;font-size:0.68rem;font-weight:700;
+    padding:0.22rem 0.65rem;border-radius:999px;
+    text-transform:uppercase;letter-spacing:0.5px;
+}
+.sr-card-body { padding:1.1rem;flex:1;display:flex;flex-direction:column; }
+.sr-card-title {
+    font-family:var(--font-display);
+    font-size:0.95rem;font-weight:700;
+    color:var(--dark);margin-bottom:0.4rem;
+    letter-spacing:-0.3px;line-height:1.35;
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;overflow:hidden;
+}
+.sr-card-desc {
+    font-size:0.8rem;color:var(--text-muted);
+    line-height:1.6;margin-bottom:0.75rem;flex:1;
+    display:-webkit-box;-webkit-line-clamp:2;
+    -webkit-box-orient:vertical;overflow:hidden;
+}
+.sr-card-footer {
+    display:flex;align-items:center;
+    justify-content:space-between;margin-top:auto;
+    padding-top:0.75rem;
+    border-top:1px solid var(--border);
+}
+.sr-price {
+    font-family:var(--font-display);
+    font-size:1.05rem;font-weight:700;
+    color:var(--primary);letter-spacing:-0.3px;
+}
+.sr-price-free { color:var(--success); }
+.sr-rating {
+    display:flex;align-items:center;gap:0.25rem;
+    color:var(--accent);font-size:0.75rem;font-weight:600;
+}
+.sr-btn {
+    display:block;width:100%;
+    padding:0.62rem;
+    background:var(--gradient);
+    color:white;border:none;border-radius:var(--radius-sm);
+    font-family:var(--font-main);font-size:0.82rem;font-weight:700;
+    cursor:pointer;text-align:center;transition:all 0.2s;
+    margin-top:0.75rem;text-decoration:none;
+    box-shadow:0 3px 12px rgba(99,102,241,0.25);
+}
+.sr-btn:hover { opacity:0.9;transform:translateY(-1px);color:white; }
+
+
+.empty-search {
+    text-align:center;padding:4rem 2rem;
+    grid-column:1/-1;
+}
+.empty-search-icon {
+    width:72px;height:72px;
+    background:var(--primary-light);color:var(--primary);
+    border-radius:50%;display:flex;align-items:center;
+    justify-content:center;font-size:1.8rem;
+    margin:0 auto 1.2rem;
+}
+.empty-search h4 {
+    font-family:var(--font-display);
+    font-size:1.1rem;font-weight:700;
+    color:var(--dark);margin-bottom:0.4rem;
+}
+.empty-search p { font-size:0.85rem;color:var(--text-muted); }
+
+
+.sr-skeleton {
+    background:white;border:1px solid var(--border);
+    border-radius:var(--radius);overflow:hidden;
+}
+.sk-img { height:175px;background:linear-gradient(90deg,#f0f2f5 25%,#e4e7eb 50%,#f0f2f5 75%);background-size:200% 100%;animation:skeletonLoad 1.5s infinite; }
+.sk-body { padding:1.1rem; }
+.sk-line { height:14px;border-radius:6px;background:linear-gradient(90deg,#f0f2f5 25%,#e4e7eb 50%,#f0f2f5 75%);background-size:200% 100%;animation:skeletonLoad 1.5s infinite;margin-bottom:0.6rem; }
+.sk-line.short { width:60%; }
+.sk-line.xshort { width:35%; }
+@keyframes skeletonLoad { 0%{background-position:200% 0}100%{background-position:-200% 0} }
+
+
+.highlight-match { background:#fef3c7;border-radius:3px;padding:0 2px;color:#92400e;font-weight:700; }
+</style>
+
+
+<div class="search-hero">
+    <div class="search-hero-grid"></div>
+    <div class="container search-hero-inner">
+        <div class="home-tag" style="margin-bottom:1rem;">
+            <span></span> Search
+        </div>
+        <h1 class="search-hero-title">Find Your Perfect Course</h1>
+        <p class="search-hero-sub">Search from our collection of expert-led courses</p>
+        <div class="big-search-box">
+            <i class="bi bi-search big-search-icon"></i>
+            <input type="text" id="mainSearch" placeholder="Search by course name or topic..."
+                   autocomplete="off" oninput="handleSearch()" autofocus>
+            <button class="big-search-clear" id="clearBtn" onclick="clearSearch()" style="display:none">
+                <i class="bi bi-x"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+
+<div class="filters-strip">
+    <div class="filters-inner">
+        <span class="filter-group-label">Category:</span>
+        <div class="filter-group" id="catFilters">
+            <button class="ftag active" data-cat="all"       onclick="setCat('all',this)">All</button>
+            <button class="ftag"        data-cat="programming" onclick="setCat('programming',this)">Programming</button>
+            <button class="ftag"        data-cat="web"         onclick="setCat('web',this)">Web Dev</button>
+            <button class="ftag"        data-cat="datascience" onclick="setCat('datascience',this)">Data Science</button>
+            <button class="ftag"        data-cat="ml"          onclick="setCat('ml',this)">ML</button>
+            <button class="ftag"        data-cat="ai"          onclick="setCat('ai',this)">AI</button>
+            <button class="ftag"        data-cat="cyber"       onclick="setCat('cyber',this)">Cyber Security</button>
+            <button class="ftag"        data-cat="cloud"       onclick="setCat('cloud',this)">Cloud</button>
+            <button class="ftag"        data-cat="app"         onclick="setCat('app',this)">App Dev</button>
+        </div>
+        <div class="filter-sep"></div>
+        <span class="filter-group-label">Price:</span>
+        <div class="filter-group">
+            <button class="ftag price-ftag" id="pAll"  onclick="setPrice('all')"  >All</button>
+            <button class="ftag price-ftag" id="pFree" onclick="setPrice('free')" >Free</button>
+            <button class="ftag price-ftag" id="pPaid" onclick="setPrice('paid')" >Paid</button>
+        </div>
+    </div>
+</div>
+
+
+<div class="search-results-area">
+    <div class="results-meta">
+        <span class="results-count" id="resultsMeta">Loading courses...</span>
+        <select class="sort-select" id="sortSelect" onchange="renderCards()">
+            <option value="default">Default</option>
+            <option value="name_asc">Name A → Z</option>
+            <option value="name_desc">Name Z → A</option>
+            <option value="price_asc">Price: Low → High</option>
+            <option value="price_desc">Price: High → Low</option>
+            <option value="rating">Top Rated</option>
+        </select>
+    </div>
+
+    
+    <div class="results-grid" id="resultsGrid">
+        ${[1,2,3,4,5,6].map(()=>`
+        <div class="sr-skeleton">
+            <div class="sk-img"></div>
+            <div class="sk-body">
+                <div class="sk-line"></div>
+                <div class="sk-line short"></div>
+                <div class="sk-line xshort"></div>
+            </div>
+        </div>`).join('')}
+    </div>
+</div>
+
+<script>
+let allCourses   = [];
+let searchQuery  = '';
+let activeCat    = 'all';
+let activePrice  = 'all';
+
+fetch('/all_courses/').then(r => r.json()).then(d => {
+    allCourses = d.courses || [];
+    const urlQ = new URLSearchParams(window.location.search).get('q');
+    if (urlQ) {
+        document.getElementById('mainSearch').value = urlQ;
+        searchQuery = urlQ.toLowerCase();
+        document.getElementById('clearBtn').style.display = 'flex';
+    }
+    renderCards();
+});
+
+function handleSearch() {
+    const val = document.getElementById('mainSearch').value;
+    searchQuery = val.toLowerCase().trim();
+    document.getElementById('clearBtn').style.display = val ? 'flex' : 'none';
+    const url = new URL(window.location);
+    if (searchQuery) url.searchParams.set('q', val);
+    else url.searchParams.delete('q');
+    window.history.replaceState({}, '', url);
+    renderCards();
+}
+
+function clearSearch() {
+    document.getElementById('mainSearch').value = '';
+    searchQuery = '';
+    document.getElementById('clearBtn').style.display = 'none';
+    window.history.replaceState({}, '', window.location.pathname);
+    renderCards();
+    document.getElementById('mainSearch').focus();
+}
+
+function setCat(cat, el) {
+    activeCat = cat;
+    document.querySelectorAll('#catFilters .ftag').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    renderCards();
+}
+
+function setPrice(p) {
+    activePrice = p;
+    ['pAll','pFree','pPaid'].forEach(id => {
+        const el = document.getElementById(id);
+        el.classList.remove('active','active-free','active-paid');
+    });
+    if (p === 'all')  { document.getElementById('pAll').classList.add('active'); }
+    if (p === 'free') { document.getElementById('pFree').classList.add('active','active-free'); }
+    if (p === 'paid') { document.getElementById('pPaid').classList.add('active','active-paid'); }
+    renderCards();
+}
+
+function starsHTML(avg) {
+    if (!avg) return '<i class="bi bi-star"></i>'.repeat(5);
+    let h = '';
+    for (let i = 1; i <= 5; i++) {
+        if (i <= Math.floor(avg))    h += '<i class="bi bi-star-fill"></i>';
+        else if (i - avg < 1)        h += '<i class="bi bi-star-half"></i>';
+        else                          h += '<i class="bi bi-star"></i>';
+    }
+    return h;
+}
+
+function highlightText(text, query) {
+    if (!query) return text;
+    const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    return text.replace(regex, '<span class="highlight-match">$1</span>');
+}
+
+function getFiltered() {
+    let list = [...allCourses];
+
+    if (activeCat !== 'all')
+        list = list.filter(c => c.category === activeCat);
+
+    if (activePrice === 'free')
+        list = list.filter(c => !c.price || parseFloat(c.price) === 0);
+    if (activePrice === 'paid')
+        list = list.filter(c => c.price && parseFloat(c.price) > 0);
+
+    if (searchQuery) {
+        list = list.filter(c =>
+            c.course_name.toLowerCase().includes(searchQuery) ||
+            (c.description || '').toLowerCase().includes(searchQuery) ||
+            (c.category || '').toLowerCase().includes(searchQuery)
+        );
+    }
+
+    return list;
+}
+
+function getSorted(list) {
+    const sort = document.getElementById('sortSelect').value;
+    const copy = [...list];
+    if (sort === 'name_asc')   copy.sort((a,b) => a.course_name.localeCompare(b.course_name));
+    if (sort === 'name_desc')  copy.sort((a,b) => b.course_name.localeCompare(a.course_name));
+    if (sort === 'price_asc')  copy.sort((a,b) => parseFloat(a.price||0) - parseFloat(b.price||0));
+    if (sort === 'price_desc') copy.sort((a,b) => parseFloat(b.price||0) - parseFloat(a.price||0));
+    if (sort === 'rating')     copy.sort((a,b) => (b.avg_rating||0) - (a.avg_rating||0));
+    return copy;
+}
+
+function renderCards() {
+    const filtered = getFiltered();
+    const sorted   = getSorted(filtered);
+    const grid     = document.getElementById('resultsGrid');
+    const meta     = document.getElementById('resultsMeta');
+
+    const total = allCourses.length;
+    const found = sorted.length;
+    if (searchQuery || activeCat !== 'all' || activePrice !== 'all') {
+        meta.innerHTML = `Showing <strong>${found}</strong> of <strong>${total}</strong> courses`;
+    } else {
+        meta.innerHTML = `<strong>${total}</strong> courses available`;
+    }
+
+    if (!sorted.length) {
+        grid.innerHTML = `<div class="empty-search">
+            <div class="empty-search-icon"><i class="bi bi-search"></i></div>
+            <h4>No courses found</h4>
+            <p>Try different keywords or clear the filters.</p>
+            <button onclick="resetAll()" style="margin-top:1rem;padding:0.55rem 1.5rem;
+                background:var(--gradient);color:white;border:none;border-radius:999px;
+                font-weight:700;font-size:0.82rem;cursor:pointer;font-family:var(--font-main);">
+                Reset Filters
+            </button>
+        </div>`;
+        return;
+    }
+
+    grid.innerHTML = sorted.map(c => {
+        const isFree = !c.price || parseFloat(c.price) === 0;
+        const priceHTML = isFree
+            ? '<span class="sr-price sr-price-free">Free</span>'
+            : `<span class="sr-price">₹${parseFloat(c.price).toFixed(0)}</span>`;
+        const ratingHTML = c.avg_rating
+            ? `<span class="sr-rating">${starsHTML(c.avg_rating)} <span style="color:var(--text-muted);margin-left:2px;">${c.avg_rating} (${c.total_reviews})</span></span>`
+            : `<span class="sr-rating" style="color:#d1d5db;">${starsHTML(0)} <span style="color:var(--text-muted);margin-left:2px;font-size:0.7rem;">No reviews</span></span>`;
+        const nameHL = highlightText(c.course_name, searchQuery);
+        const descHL = highlightText((c.description || '').substring(0, 100), searchQuery);
+
+        return `<div class="sr-card" onclick="location.href='/course_description_page/?course_id=${c.course_id}'">
+            <div class="sr-card-img-wrap">
+                <img class="sr-card-img" src="${c.image_url}" alt="${c.course_name}"
+                     onerror="this.src='https://via.placeholder.com/400x175?text=Course'">
+                <span class="sr-cat-tag">${c.category}</span>
+            </div>
+            <div class="sr-card-body">
+                <div class="sr-card-title">${nameHL}</div>
+                <div class="sr-card-desc">${descHL}${c.description && c.description.length > 100 ? '...' : ''}</div>
+                <div class="sr-card-footer">
+                    ${priceHTML}
+                    ${ratingHTML}
+                </div>
+                <a class="sr-btn" href="/course_description_page/?course_id=${c.course_id}"
+                   onclick="event.stopPropagation()">
+                    <i class="bi bi-arrow-right-circle me-1"></i> View Course
+                </a>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function resetAll() {
+    document.getElementById('mainSearch').value = '';
+    searchQuery = '';
+    activeCat   = 'all';
+    activePrice = 'all';
+    document.getElementById('clearBtn').style.display = 'none';
+    document.getElementById('sortSelect').value = 'default';
+    document.querySelectorAll('#catFilters .ftag').forEach((b,i) => b.classList.toggle('active', i===0));
+    ['pAll','pFree','pPaid'].forEach(id => document.getElementById(id).classList.remove('active','active-free','active-paid'));
+    document.getElementById('pAll').classList.add('active');
+    window.history.replaceState({}, '', window.location.pathname);
+    renderCards();
+}
+
+document.getElementById('pAll').classList.add('active');
+</script>
+{% endblock %}
